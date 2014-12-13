@@ -18,6 +18,8 @@ var inflicter, radiation, server, julie;
 var rest = require('connect-rest');
 var httphelper = rest.httphelper;
 
+var io = require('socket.io');
+var ioclient = require('socket.io-client');
 
 describe("harcon-radiation", function () {
 
@@ -42,14 +44,18 @@ describe("harcon-radiation", function () {
 			name: 'julie',
 			context: 'morning',
 			rest: true,
+			websocket: true,
 			wakeup: function( greetings, ignite, callback ){
 				callback( null, 'Thanks. ' + greetings );
 			}
 		};
-		inflicter.addicts( julie );
 
 		var port = process.env.PORT || 8080;
 		server = http.createServer(app);
+
+		io = radiation.io( io.listen( server ) );
+
+		inflicter.addicts( julie );
 
 		server.listen( port, function() {
 			console.log( 'Running on http://localhost:' + port);
@@ -68,6 +74,21 @@ describe("harcon-radiation", function () {
 				done( );
 			}
 		);
+	});
+
+	it('Socketing', function(done){
+		var socket = ioclient( 'http://localhost:8080/Inflicter' );
+		socket.emit('ignite', { event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
+		socket.on('done', function (data) {
+			expect( data ).to.include( 'Thanks. Helloka!' );
+
+			socket.disconnect();
+			done( );
+		});
+		socket.on('error', function (data) {
+			socket.disconnect();
+			done( new Error(data) );
+		});
 	});
 
 	it('Test Revoke', function(done){
