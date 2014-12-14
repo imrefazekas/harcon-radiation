@@ -33,20 +33,19 @@
     "socket.io": "~1"
   },
   "devDependencies": {
-    "body-parser": "^1.10.0",
-    "chai": "^1.10.0",
-    "connect": "^3.3.3",
-    "gulp": "latest",
+    "body-parser": "~1",
+    "chai": "~1",
+    "connect": "~3",
+    "gulp": "~3",
     "gulp-docco": "latest",
     "gulp-jshint": "latest",
     "gulp-load-plugins": "latest",
     "gulp-mocha": "latest",
-    "gulp-util": "^3.0.1",
-    "mkdirp": "^0.5.0",
-    "socket.io-client": "^1.2.1",
-    "watch": "^0.13.0",
+    "gulp-util": "latest",
+    "mkdirp": "latest",
+    "socket.io-client": "~1",
     "webpack": "~1",
-    "winston": "^0.8.3"
+    "winston": "latest"
   },
   "engines": {
     "node": ">= 0.10.0"
