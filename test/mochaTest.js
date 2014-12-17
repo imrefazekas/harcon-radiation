@@ -13,13 +13,14 @@ var Radiation = require('../lib/harcon-radiation');
 var Logger = require('./WinstonLogger');
 var logger = Logger.createWinstonLogger( { console: true } );
 
-var inflicter, radiation, server, julie;
+var inflicter, radiation, server, julie, marie;
 
 var rest = require('connect-rest');
 var httphelper = rest.httphelper;
 
 var io = require('socket.io');
 var ioclient = require('socket.io-client');
+var socketClient;
 
 describe("harcon-radiation", function () {
 
@@ -49,62 +50,102 @@ describe("harcon-radiation", function () {
 				callback( null, 'Thanks. ' + greetings );
 			}
 		};
+		marie = {
+			name: 'marie',
+			division: 'charming',
+			context: 'morning',
+			rest: true,
+			websocket: true,
+			greetings: function( greetings, ignite, callback ){
+				callback( null, 'Merci bien. ' + greetings );
+			}
+		};
 
 		var port = process.env.PORT || 8080;
 		server = http.createServer(app);
 
 		io = radiation.io( io.listen( server ) );
 
-		inflicter.addicts( julie );
+		inflicter.addicts( julie ); inflicter.addicts( marie );
 
 		server.listen( port, function() {
 			console.log( 'Running on http://localhost:' + port);
 
 			done();
 		});
+
+		socketClient = ioclient( 'http://localhost:8080/Inflicter' );
 	});
 
-	it('Test REST calls', function(done){
-		httphelper.generalCall( 'http://localhost:8080/morning/wakeup', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
-			function(err, result, status){
-				should.not.exist(err); should.exist(result);
-
-				expect( result ).to.include( 'Thanks. Helloka!' );
-
-				done( );
-			}
-		);
-	});
-
-	it('Socketing', function(done){
-		var socket = ioclient( 'http://localhost:8080/Inflicter' );
-		socket.emit('ignite', { event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
-		socket.on('done', function (data) {
-			expect( data ).to.include( 'Thanks. Helloka!' );
-
-			socket.disconnect();
-			done( );
+	describe("Test Websocket calls", function () {
+		it('Division-less', function(done){
+			socketClient.emit('ignite', { id: '21', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
+			socketClient.on('done', function (data) {
+				if( data.id === '21' ){
+					expect( data.result ).to.include( 'Thanks. Helloka!' );
+					done( );
+				}
+			});
+			socketClient.on('error', function (data) {
+				if( data.id === '21' )
+					done( new Error(data) );
+			});
 		});
-		socket.on('error', function (data) {
-			socket.disconnect();
-			done( new Error(data) );
+		it('Division-cared', function(done){
+			socketClient.emit('ignite', { id: '12', division: 'charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } );
+			socketClient.on('done', function (data) {
+				if( data.id === '12' ){
+					expect( data.result ).to.include( 'Merci bien. Szióka!' );
+					done( );
+				}
+			});
+			socketClient.on('error', function (data) {
+				if( data.id === '12' )
+					done( new Error(data) );
+			});
 		});
 	});
 
-	it('Test Revoke', function(done){
-		inflicter.detracts( julie );
-
-		setTimeout(function(){
+	describe("Test REST calls", function () {
+		it('Division-less', function(done){
 			httphelper.generalCall( 'http://localhost:8080/morning/wakeup', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 				function(err, result, status){
-					expect( status.statusCode ).to.equal( 404 );
+					should.not.exist(err); should.exist(result);
+
+					expect( result ).to.include( 'Thanks. Helloka!' );
+
 					done( );
 				}
 			);
-		}, 1000);
+		});
+		it('Division-cared', function(done){
+			httphelper.generalCall( 'http://localhost:8080/charming/morning/greetings', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+				function(err, result, status){
+					should.not.exist(err); should.exist(result);
+
+					expect( result ).to.include( 'Merci bien. Szióka!' );
+
+					done( );
+				}
+			);
+		});
+		it('Test Revoke', function(done){
+			inflicter.detracts( julie );
+
+			setTimeout(function(){
+				httphelper.generalCall( 'http://localhost:8080/morning/wakeup', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+					function(err, result, status){
+						expect( status.statusCode ).to.equal( 404 );
+						done( );
+					}
+				);
+			}, 1000);
+		});
 	});
 
 	after(function(done){
+		if( socketClient )
+			socketClient.disconnect();
 		if( server )
 			server.close( function(){ console.log('Node stopped'); done(); } );
 		if( inflicter )
