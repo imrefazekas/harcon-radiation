@@ -39,7 +39,7 @@ describe("harcon-radiation", function () {
 			discoverPath: 'discover',
 			protoPath: 'proto'
 		};
-		app.use( radiation.rester( options ) );
+		app.use( radiation.rester( rest, options ) );
 
 		julie = {
 			name: 'julie',
