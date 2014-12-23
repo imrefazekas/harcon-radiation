@@ -58,6 +58,10 @@ describe("harcon-radiation", function () {
 			websocket: true,
 			greetings: function( greetings, ignite, callback ){
 				callback( null, 'Merci bien. ' + greetings );
+			},
+			terminus: function( greetings, terms, ignite, callback ){
+				console.log('TERMS::', terms);
+				callback( null, 'Merci bien. ' + greetings );
 			}
 		};
 
@@ -120,6 +124,17 @@ describe("harcon-radiation", function () {
 		});
 		it('Division-cared', function(done){
 			httphelper.generalCall( 'http://localhost:8080/charming/morning/greetings', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+				function(err, result, status){
+					should.not.exist(err); should.exist(result);
+
+					expect( result ).to.include( 'Merci bien. Szióka!' );
+
+					done( );
+				}
+			);
+		});
+		it('Division-cared with terms', function(done){
+			httphelper.generalCall( 'http://localhost:8080/charming/morning/terminus', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
