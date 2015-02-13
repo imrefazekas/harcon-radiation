@@ -26,7 +26,7 @@ describe("harcon-radiation", function () {
 
 	before(function(done){
 		inflicter = new Inflicter( { logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
-		radiation = new Radiation( inflicter );
+		radiation = new Radiation( inflicter, { name:'Radiation', hideInnerServices:false, closeRest:false } );
 
 		julie = {
 			name: 'julie',
