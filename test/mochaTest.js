@@ -28,19 +28,6 @@ describe("harcon-radiation", function () {
 		inflicter = new Inflicter( { logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
 		radiation = new Radiation( inflicter );
 
-		var app = connect()
-			.use( bodyParser.urlencoded( { extended: true } ) )
-			.use( bodyParser.json() )
-			;
-		var options = {
-			context: '/api',
-			logger: logger,
-			apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ],
-			discoverPath: 'discover',
-			protoPath: 'proto'
-		};
-		app.use( radiation.rester( rest, options ) );
-
 		julie = {
 			name: 'julie',
 			context: 'morning',
@@ -65,12 +52,27 @@ describe("harcon-radiation", function () {
 			}
 		};
 
+		inflicter.addicts( julie ); inflicter.addicts( marie );
+
+		var app = connect()
+			.use( bodyParser.urlencoded( { extended: true } ) )
+			.use( bodyParser.json() )
+			;
+		var options = {
+			context: '/api',
+			logger: logger,
+			apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ],
+			discoverPath: 'discover',
+			protoPath: 'proto'
+		};
+		app.use( radiation.rester( rest, options ) );
+
 		var port = process.env.PORT || 8080;
 		server = http.createServer(app);
 
 		io = radiation.io( io.listen( server ) );
 
-		inflicter.addicts( julie ); inflicter.addicts( marie );
+		//inflicter.addicts( julie ); inflicter.addicts( marie );
 
 		server.listen( port, function() {
 			console.log( 'Running on http://localhost:' + port);
