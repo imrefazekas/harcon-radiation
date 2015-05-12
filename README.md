@@ -112,4 +112,7 @@ See <https://github.com/imrefazekas/harcon-radiation/issues>.
 
 ## Changelog
 
+- 1.0.0 : moving to harcon v2
+- 0.8.0 : addressing via names added
+- 0.5.0 : refactoring and moving to harcon v1
 - 0.1.0 : initial release
