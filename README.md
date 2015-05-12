@@ -1,4 +1,4 @@
-Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/harcon) library to automatically expose entities through REST and Websocket.
+Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/harcon) library to automatically expose selected entities through REST and/or Websocket.
 
 [![NPM](https://nodei.co/npm/harcon-radiation.png)](https://nodei.co/npm/harcon-radiation/)
 
@@ -6,7 +6,7 @@ Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/h
 ================
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is a small, yet handy tool extending the [harcon](https://github.com/imrefazekas/harcon) library to provide a [REST](http://en.wikipedia.org/wiki/Representational_state_transfer)-, and [Websocket](http://en.wikipedia.org/wiki/WebSocket)-based interface to it.
 
-Every time you publish or revoke an object-based entity, the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) will maintain the interfaces transparently.
+Every time you publish or revoke an object-based entity, the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) reacts to the changes and maintain the interfaces transparently.
 
 ## Installation
 
@@ -14,17 +14,19 @@ $ npm install harcon-radiation
 
 ## Quick setup
 ```javascript
-var inflicter = new Inflicter( { ... } );
-var radiation = new Radiation( inflicter );
-
+var harcon = new Harcon( { ... } );
+var radiation = new Radiation( harcon );
+var rest = require('connect-rest');
+var connect = require('connect');
+...
 var app = connect();
 ...
-app.use( radiation.rester( options ) ); // Activates the REST services
+app.use( radiation.rester( rest, options ) ); // Activates the REST services
 ...
 server = http.createServer(app);
 io = radiation.io( io.listen( server ) ); // Activates the Websocket services
 ...
-inflicter.addicts( {
+harcon.addicts( {
 	name: 'julie',
 	context: 'book',
 	rest: true,
@@ -34,10 +36,33 @@ inflicter.addicts( {
 	}
 } );
 ```
-The example shows how you can attach the __radiation__ to a connect/express instance. You can activate the REST and Websocket interfaces or both as you wish.
+The example shows how you can attach the __radiation__ to a connect/express instance and link to your _harcon_ instance. You can activate the REST and Websocket interfaces only or both as you wish.
 Any object-based entities published to [harcon](https://github.com/imrefazekas/harcon) possessing attributes __'rest'__ and __'websocket'__ will be exposed through those interfaces automatically.
 
-## Access service functions
+
+## Regulate publishing process
+
+The default behavior is to publish all services. However, one can define rules to make exceptions. By setting the option _hideInnerServices_, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) will hide inner services and won't publish them
+
+```javascript
+var radiation = new Radiation( harcon, { hideInnerServices: true } );
+```
+
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) ignores a service in 2 cases:
+
+- its name starts with a given prefix
+```javascript
+	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesPrefix: '_' } );
+```
+
+- its name matches to a given pattern
+```javascript
+	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesFn: function(name){
+		return name.startsWith('inner') || name.startsWith('sys');
+	} } );
+```
+
+## Call in from remote
 
 REST interface means a POST service using the same addressing logic as was implemented in harcon.
 An division-aware URI composed by name or context and a service function's name
