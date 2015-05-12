@@ -1,0 +1,7 @@
+1. Full addressing kell a komponensekre:
+	context.service és name.service is
+
+	context minősített lehet, context is. ezekre minden '.'-ra '/'
+
+2. Rendszer-komponensek? Jobb security? Custom path-ok? Division, external id-k?
+	mi van ha nem mindent akarok kilógatni? Erre mi a feladat?

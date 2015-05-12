@@ -39,9 +39,10 @@ Any object-based entities published to [harcon](https://github.com/imrefazekas/h
 
 ## Access service functions
 
-REST interface means a POST service using an URI composed by context and service function's name
+REST interface means a POST service using the same addressing logic as was implemented in harcon.
+An division-aware URI composed by name or context and a service function's name
 
-	post -> 'http://localhost:8080/book/log'
+	post -> 'http://localhost:8080/Inflicter/book/log'
 
 with body
 
@@ -52,7 +53,7 @@ will do perfectly.
 Websockets is also straightforward:
 
 	var socket = ioclient( 'http://localhost:8080/Inflicter' );
-	socket.emit('ignite', { event: 'book.log', params: [ 'Helloka!' ] } );
+	socket.emit('ignite', { division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } );
 
 The lib will open the namespace 'Inflicter' listening incoming packets. By sending an __'ignite'__ message passing the communication you want to deliver will do fine.
 

@@ -26,7 +26,7 @@ describe("harcon-radiation", function () {
 
 	before(function(done){
 		inflicter = new Inflicter( { logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
-		radiation = new Radiation( inflicter, { name:'Radiation', hideInnerServices:false, closeRest:false } );
+		radiation = new Radiation( inflicter, { name: 'Radiation', hideInnerServices: false, closeRest: false } );
 
 		julie = {
 			name: 'julie',
@@ -85,7 +85,7 @@ describe("harcon-radiation", function () {
 
 	describe("Test Websocket calls", function () {
 		it('Division-less', function(done){
-			socketClient.emit('ignite', { id: '21', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
+			socketClient.emit('ignite', { id: '21', division: 'Inflicter', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
 			socketClient.on('done', function (data) {
 				if( data.id === '21' ){
 					expect( data.result ).to.include( 'Thanks. Helloka!' );
@@ -98,7 +98,7 @@ describe("harcon-radiation", function () {
 			});
 		});
 		it('Division-cared', function(done){
-			socketClient.emit('ignite', { id: '12', division: 'charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } );
+			socketClient.emit('ignite', { id: '12', division: 'Inflicter.charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } );
 			socketClient.on('done', function (data) {
 				if( data.id === '12' ){
 					expect( data.result ).to.include( 'Merci bien. Szióka!' );
@@ -114,7 +114,7 @@ describe("harcon-radiation", function () {
 
 	describe("Test REST calls", function () {
 		it('Division-less', function(done){
-			httphelper.generalCall( 'http://localhost:8080/morning/wakeup', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/Inflicter/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -125,7 +125,7 @@ describe("harcon-radiation", function () {
 			);
 		});
 		it('Division-cared', function(done){
-			httphelper.generalCall( 'http://localhost:8080/charming/morning/greetings', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/Inflicter/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -136,7 +136,7 @@ describe("harcon-radiation", function () {
 			);
 		});
 		it('Division-cared with terms', function(done){
-			httphelper.generalCall( 'http://localhost:8080/charming/morning/terminus', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/Inflicter/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -150,7 +150,7 @@ describe("harcon-radiation", function () {
 			inflicter.detracts( julie );
 
 			setTimeout(function(){
-				httphelper.generalCall( 'http://localhost:8080/morning/wakeup', 'POST', {'x-api-key':'849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+				httphelper.generalCall( 'http://localhost:8080/Inflicter/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 					function(err, result, status){
 						expect( status.statusCode ).to.equal( 404 );
 						done( );
