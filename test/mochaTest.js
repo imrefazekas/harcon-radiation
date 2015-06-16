@@ -27,6 +27,20 @@ describe("harcon-radiation", function () {
 	before(function(done){
 		inflicter = new Inflicter( { logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
 		radiation = new Radiation( inflicter, { name: 'Radiation', hideInnerServices: false, closeRest: false } );
+		radiation.listen( {
+			shifted: function( radiation, object ){
+				console.log( 'shifted', object );
+			},
+			posted: function( radiation, request ){
+				console.log( 'posted', request );
+			},
+			ioCreacted: function( radiation, namespaceSocker ){
+				console.log( 'ioCreacted', namespaceSocker );
+			},
+			ioConnected: function( radiation, socket ){
+				console.log( 'ioConnected' );
+			}
+		} );
 
 		julie = {
 			name: 'julie',
@@ -34,6 +48,7 @@ describe("harcon-radiation", function () {
 			rest: true,
 			websocket: true,
 			wakeup: function( greetings, ignite, callback ){
+				this.shifted( { data: 'content' } );
 				callback( null, 'Thanks. ' + greetings );
 			}
 		};
