@@ -82,6 +82,30 @@ Websockets is also straightforward:
 
 The lib will open the namespace 'Inflicter' listening incoming packets. By sending an __'ignite'__ message passing the communication you want to deliver will do fine.
 
+
+## Security
+
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is using [connect-rest](https://github.com/imrefazekas/connect-rest) inside and allows you to use the security features of that REST lib.
+Your components might possess a __protector__ function which should retrieve [protector function](https://github.com/imrefazekas/connect-rest#protector) used by the [connect-rest](https://github.com/imrefazekas/connect-rest) when it is called.
+The service parameter can be used to differentiate the different security aspects your services cover.
+
+```javascript
+harcon.addicts( {
+	name: 'julie',
+	rest: true,
+	security: {
+		protector: function(service){
+			return function( req, res, pathname, path, callback ){
+				callback();
+			}
+		}
+	}
+} );
+```
+
+About the protector functions, please find the description [here](https://github.com/imrefazekas/connect-rest#protector).
+
+
 ## License
 
 (The MIT License)
