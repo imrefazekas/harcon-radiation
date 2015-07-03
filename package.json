@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "1.2.0",
+  "version": "1.2.5",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -20,12 +20,7 @@
     "name": "Imre Fazekas",
     "email": "mail@imrefazekas.me"
   },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "http://www.opensource.org/licenses/MIT"
-    }
-  ],
+  "license": "MIT",
   "main": "./lib/harcon-radiation.js",
   "dependencies": {
     "clerobee": "latest",
@@ -52,5 +47,5 @@
   "engines": {
     "node": ">= 0.10.0"
   },
-  "_id": "harcon-radiation@1.2.0"
+  "_id": "harcon-radiation@1.2.5"
 }
