@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "1.2.5",
+  "version": "1.3.0",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -24,9 +24,9 @@
   "main": "./lib/harcon-radiation.js",
   "dependencies": {
     "clerobee": "latest",
-    "connect-rest": "~1",
+    "connect-rest": "~2",
     "harcon": "~2",
-    "lodash": "^3.9.3",
+    "isa.js": "~1",
     "socket.io": "~1"
   },
   "devDependencies": {
@@ -35,7 +35,7 @@
     "connect": "~3",
     "gulp": "~3",
     "gulp-docco": "latest",
-    "gulp-jshint": "latest",
+    "gulp-eslint": "~1",
     "gulp-load-plugins": "latest",
     "gulp-mocha": "latest",
     "gulp-util": "latest",
@@ -45,7 +45,7 @@
     "winston": "latest"
   },
   "engines": {
-    "node": ">= 0.10.0"
+    "node": ">= 4.0.0"
   },
-  "_id": "harcon-radiation@1.2.5"
+  "_id": "harcon-radiation@1.3.0"
 }

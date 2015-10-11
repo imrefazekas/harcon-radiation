@@ -2,6 +2,7 @@ Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/h
 
 [![NPM](https://nodei.co/npm/harcon-radiation.png)](https://nodei.co/npm/harcon-radiation/)
 
+!Note: Please be aware, that from version 1.3.0, harcon-radiation requires Node 4.0.0 or above...
 
 ================
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is a small, yet handy tool extending the [harcon](https://github.com/imrefazekas/harcon) library to provide a [REST](http://en.wikipedia.org/wiki/Representational_state_transfer)-, and [Websocket](http://en.wikipedia.org/wiki/WebSocket)-based interface to it.

@@ -16,7 +16,7 @@ var logger = Logger.createWinstonLogger( { console: true } );
 var inflicter, radiation, server, julie, marie;
 
 var rest = require('connect-rest');
-var httphelper = rest.httphelper;
+var httphelper = rest.httphelper();
 
 var io = require('socket.io');
 var ioclient = require('socket.io-client');
