@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "1.3.0",
+  "version": "1.3.5",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -47,5 +47,5 @@
   "engines": {
     "node": ">= 4.0.0"
   },
-  "_id": "harcon-radiation@1.3.0"
+  "_id": "harcon-radiation@1.3.5"
 }

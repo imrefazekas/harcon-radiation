@@ -15,8 +15,8 @@ var logger = Logger.createWinstonLogger( { console: true } );
 
 var inflicter, radiation, server, julie, marie;
 
-var rest = require('connect-rest');
-var httphelper = rest.httphelper();
+var Rest = require('connect-rest');
+var httphelper = Rest.httphelper();
 
 var io = require('socket.io');
 var ioclient = require('socket.io-client');
@@ -80,7 +80,8 @@ describe("harcon-radiation", function () {
 			discoverPath: 'discover',
 			protoPath: 'proto'
 		};
-		app.use( radiation.rester( rest, options ) );
+		var rester = Rest.create( options );
+		app.use( radiation.rester( rester ) );
 
 		var port = process.env.PORT || 8080;
 		server = http.createServer(app);
