@@ -6,14 +6,14 @@ var http = require('http');
 var connect = require('connect');
 var bodyParser = require('body-parser');
 
-var Inflicter = require('harcon');
+var Harcon = require('harcon');
 
 var Radiation = require('../lib/harcon-radiation');
 
 var Logger = require('./WinstonLogger');
 var logger = Logger.createWinstonLogger( { console: true } );
 
-var inflicter, radiation, server, julie, marie;
+var harcon, radiation, server, julie, marie;
 
 var Rest = require('connect-rest');
 var httphelper = Rest.httphelper();
@@ -22,11 +22,14 @@ var io = require('socket.io');
 var ioclient = require('socket.io-client');
 var socketClient;
 
+var path = require('path');
+var Publisher = require('./Publisher');
+
 describe("harcon-radiation", function () {
 
 	before(function(done){
-		inflicter = new Inflicter( { logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
-		radiation = new Radiation( inflicter, { name: 'Radiation', hideInnerServices: false, closeRest: false } );
+		harcon = new Harcon( { name: 'King', logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
+		radiation = new Radiation( harcon, { name: 'Radiation', hideInnerServices: false, closeRest: false } );
 		radiation.listen( {
 			shifted: function( radiation, object ){
 				console.log( 'shifted', object );
@@ -67,7 +70,7 @@ describe("harcon-radiation", function () {
 			}
 		};
 
-		inflicter.addicts( julie ); inflicter.addicts( marie );
+		harcon.addicts( julie ); harcon.addicts( marie );
 
 		var app = connect()
 			.use( bodyParser.urlencoded( { extended: true } ) )
@@ -88,20 +91,23 @@ describe("harcon-radiation", function () {
 
 		io = radiation.io( io.listen( server ) );
 
-		//inflicter.addicts( julie ); inflicter.addicts( marie );
+		//harcon.addicts( julie ); harcon.addicts( marie );
+
+		socketClient = ioclient( 'http://localhost:8080/King' );
+
+		harcon.addicts( Publisher );
+		Publisher.watch( path.join(__dirname, 'comps'), -1 );
 
 		server.listen( port, function() {
 			console.log( 'Running on http://localhost:' + port);
 
 			done();
 		});
-
-		socketClient = ioclient( 'http://localhost:8080/Inflicter' );
 	});
 
 	describe("Test Websocket calls", function () {
 		it('Division-less', function(done){
-			socketClient.emit('ignite', { id: '21', division: 'Inflicter', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
+			socketClient.emit('ignite', { id: '21', division: 'King', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } );
 			socketClient.on('done', function (data) {
 				if( data.id === '21' ){
 					expect( data.result ).to.include( 'Thanks. Helloka!' );
@@ -114,7 +120,7 @@ describe("harcon-radiation", function () {
 			});
 		});
 		it('Division-cared', function(done){
-			socketClient.emit('ignite', { id: '12', division: 'Inflicter.charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } );
+			socketClient.emit('ignite', { id: '12', division: 'King.charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } );
 			socketClient.on('done', function (data) {
 				if( data.id === '12' ){
 					expect( data.result ).to.include( 'Merci bien. Szióka!' );
@@ -130,7 +136,7 @@ describe("harcon-radiation", function () {
 
 	describe("Test REST calls", function () {
 		it('Division-less', function(done){
-			httphelper.generalCall( 'http://localhost:8080/Inflicter/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -141,7 +147,7 @@ describe("harcon-radiation", function () {
 			);
 		});
 		it('Division-cared', function(done){
-			httphelper.generalCall( 'http://localhost:8080/Inflicter/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -152,7 +158,7 @@ describe("harcon-radiation", function () {
 			);
 		});
 		it('Division-cared with terms', function(done){
-			httphelper.generalCall( 'http://localhost:8080/Inflicter/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
@@ -163,10 +169,10 @@ describe("harcon-radiation", function () {
 			);
 		});
 		it('Test Revoke', function(done){
-			inflicter.detracts( julie );
+			harcon.detracts( julie );
 
 			setTimeout(function(){
-				httphelper.generalCall( 'http://localhost:8080/Inflicter/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+				httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 					function(err, result, status){
 						expect( status.statusCode ).to.equal( 404 );
 						done( );
@@ -176,13 +182,28 @@ describe("harcon-radiation", function () {
 		});
 	});
 
+	describe("Test Publishing calls", function () {
+		it('Calling Automata', function( done ){
+			httphelper.generalCall( 'http://localhost:8080/King/Automata/act', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ ] }, 'application/json', logger,
+				function(err, result, status){
+					console.log( err, result, status );
+					should.not.exist(err); should.exist(result);
+
+					expect( result ).to.include( 'Done.' );
+
+					done( );
+				}
+			);
+		});
+	});
+
 	after(function(done){
 		if( socketClient )
 			socketClient.disconnect();
 		if( server )
 			server.close( function(){ console.log('Node stopped'); done(); } );
-		if( inflicter )
-			inflicter.close();
+		if( harcon )
+			harcon.close();
 		if( !server )
 			done();
 	});
