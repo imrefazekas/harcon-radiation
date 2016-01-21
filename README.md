@@ -92,6 +92,8 @@ The lib will open the namespace 'Inflicter' listening incoming packets. By sendi
 This will accept POST request on the given path in regard with the JSON-RPC 2.0 standard.
 Setting the _'jsonrpcPath'_ attribute will also open a Websocket namespace listening incoming JSON-RPC 2.0 packets.
 
+Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__.
+
 
 ## Security
 
