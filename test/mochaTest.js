@@ -20,7 +20,7 @@ var httphelper = Rest.httphelper();
 
 var io = require('socket.io');
 var ioclient = require('socket.io-client');
-var socketClient;
+var socketClient, socketJSONRPCClient;
 
 var path = require('path');
 var Publisher = require('./Publisher');
@@ -29,7 +29,7 @@ describe("harcon-radiation", function () {
 
 	before(function(done){
 		harcon = new Harcon( { name: 'King', logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
-		radiation = new Radiation( harcon, { name: 'Radiation', hideInnerServices: false, closeRest: false } );
+		radiation = new Radiation( harcon, { name: 'Radiation', hideInnerServices: false, closeRest: false, jsonrpcPath: '/RPCTwo' } );
 		radiation.listen( {
 			shifted: function( radiation, object ){
 				console.log( 'shifted', object );
@@ -94,6 +94,7 @@ describe("harcon-radiation", function () {
 		//harcon.addicts( julie ); harcon.addicts( marie );
 
 		socketClient = ioclient( 'http://localhost:8080/King' );
+		socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' );
 
 		harcon.addicts( Publisher );
 		Publisher.watch( path.join(__dirname, 'comps'), -1 );
@@ -129,6 +130,20 @@ describe("harcon-radiation", function () {
 			});
 			socketClient.on('error', function (data) {
 				if( data.id === '12' )
+					done( new Error(data) );
+			});
+		});
+		it('JSON-RPC 2.0', function(done){
+			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: '20' } );
+			socketJSONRPCClient.on('done', function (data) {
+				done( );
+				if( data.id === '12' ){
+					expect( data.result ).to.include( 'Merci bien. Szióka!' );
+					done( );
+				}
+			});
+			socketJSONRPCClient.on('error', function (data) {
+				if( data.id === '20' )
 					done( new Error(data) );
 			});
 		});
@@ -168,6 +183,17 @@ describe("harcon-radiation", function () {
 				}
 			);
 		});
+		it('JSON-RPC 2.0', function(done){
+			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+				function(err, result, status){
+					should.not.exist(err); should.exist(result);
+
+					expect( result ).to.include( 'Merci bien. Szióka!' );
+
+					done( );
+				}
+			);
+		});
 		it('Test Revoke', function(done){
 			harcon.detracts( julie );
 
@@ -184,12 +210,13 @@ describe("harcon-radiation", function () {
 
 	describe("Test Publishing calls", function () {
 		it('Calling Automata', function( done ){
-			httphelper.generalCall( 'http://localhost:8080/King/Automata/act', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ ] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8080/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: '20' }, 'application/json', logger,
 				function(err, result, status){
 					console.log( err, result, status );
+
 					should.not.exist(err); should.exist(result);
 
-					expect( result ).to.include( 'Done.' );
+					//expect( result ).to.include( 'Done.' );
 
 					done( );
 				}
@@ -200,6 +227,8 @@ describe("harcon-radiation", function () {
 	after(function(done){
 		if( socketClient )
 			socketClient.disconnect();
+		if( socketJSONRPCClient )
+			socketJSONRPCClient.disconnect();
 		if( server )
 			server.close( function(){ console.log('Node stopped'); done(); } );
 		if( harcon )

@@ -76,12 +76,21 @@ with body
 
 will do perfectly.
 
-Websockets is also straightforward:
+Using Websockets is also straightforward:
 
 	var socket = ioclient( 'http://localhost:8080/Inflicter' );
 	socket.emit('ignite', { division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } );
 
 The lib will open the namespace 'Inflicter' listening incoming packets. By sending an __'ignite'__ message passing the communication you want to deliver will do fine.
+
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) supports JSON-RPC 2.0 if you create the instace as follows:
+
+```javascript
+	var radiation = new Radiation( harcon, { jsonrpcPath: '/JSONRPC' } );
+```
+
+This will accept POST request on the given path in regard with the JSON-RPC 2.0 standard.
+Setting the _'jsonrpcPath'_ attribute will also open a Websocket namespace listening incoming JSON-RPC 2.0 packets.
 
 
 ## Security
@@ -111,7 +120,7 @@ About the protector functions, please find the description [here](https://github
 
 (The MIT License)
 
-Copyright (c) 2015 Imre Fazekas
+Copyright (c) 2016 Imre Fazekas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -137,6 +146,8 @@ See <https://github.com/imrefazekas/harcon-radiation/issues>.
 
 ## Changelog
 
+- 1.6: JSON-RPC support added
+- 1.1-1.4: refactoring
 - 1.0.0 : moving to harcon v2
 - 0.8.0 : addressing via names added
 - 0.5.0 : refactoring and moving to harcon v1
