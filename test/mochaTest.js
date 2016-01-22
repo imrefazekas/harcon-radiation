@@ -51,7 +51,7 @@ describe("harcon-radiation", function () {
 			rest: true,
 			websocket: true,
 			wakeup: function( greetings, ignite, callback ){
-				this.shifted( { data: 'content' } );
+				this.shifted( { mood: 'happy' } );
 				callback( null, 'Thanks. ' + greetings );
 			}
 		};
@@ -94,6 +94,9 @@ describe("harcon-radiation", function () {
 		//harcon.addicts( julie ); harcon.addicts( marie );
 
 		socketClient = ioclient( 'http://localhost:8080/King' );
+		socketClient.on('mood', function (data) {
+			console.log('>>>>>>>>>>>>>> Shifted:::', data);
+		} );
 		socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' );
 
 		harcon.addicts( Publisher );

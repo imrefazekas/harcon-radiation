@@ -95,6 +95,21 @@ Setting the _'jsonrpcPath'_ attribute will also open a Websocket namespace liste
 Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__.
 
 
+## Emit message to websocket listeners
+
+You can send out / broadcast messages to connected listeners if your business entity calls the method _'shifted'_, which is a built-in service of harcon letting entities to inform the system about state changes.
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) uses this mechanism to send out those messages to the websocket listeners.
+
+```javascript
+	this.shifted( { mood: 'happy' } );
+```
+
+That will send the message 'mood' to the connected clients with the data _'happy'_.
+All properties of the object sent will be turned into separate messages to be broadcasted. And the payload of the messages will be set by the value of the given property.
+
+Note: Considering the nature of the JSON-RPC 2.0, this level of service is available only for the _'normal'_ websockets clients.
+
+
 ## Security
 
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is using [connect-rest](https://github.com/imrefazekas/connect-rest) inside and allows you to use the security features of that REST lib.
