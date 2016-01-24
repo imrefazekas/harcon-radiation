@@ -63,7 +63,7 @@ var radiation = new Radiation( harcon, { hideInnerServices: true } );
 	} } );
 ```
 
-## call REST
+## Call REST
 
 There are 3 options to expose services through REST-like interface:
 
