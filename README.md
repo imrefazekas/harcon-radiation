@@ -37,7 +37,7 @@ harcon.addicts( {
 	}
 } );
 ```
-The example shows how you can attach the __radiation__ to a connect/express instance and link to your _harcon_ instance. You can activate the REST and Websocket interfaces only or both as you wish.
+The example shows how you can attach the __radiation__ to a connect/express instance and link to your _harcon_ instance. You can activate the REST and Websocket interfaces.
 Any object-based entities published to [harcon](https://github.com/imrefazekas/harcon) possessing attributes __'rest'__ and __'websocket'__ will be exposed through those interfaces automatically.
 
 
@@ -63,36 +63,89 @@ var radiation = new Radiation( harcon, { hideInnerServices: true } );
 	} } );
 ```
 
-## Call in from remote
+## call REST
 
-REST interface means a POST service using the same addressing logic as was implemented in harcon.
-An division-aware URI composed by name or context and a service function's name
+There are 3 options to expose services through REST-like interface:
 
-	post -> 'http://localhost:8080/Inflicter/book/log'
+- RESTful: each service will be exposed on different URI according the name of the division, context/entity and service...
+- [JSON-RPC 2.0](http://www.jsonrpc.org/specification): one single URI acccepting JSON-RPC 2.0 calls
+- Harcon RPC: one single URI accepting a harcon JSON
 
-with body
+By default, option 1 is turned on, and the rest options are passive.
+
+
+#### RESTful
+
+[RESTful](https://en.wikipedia.org/wiki/Representational_state_transfer) interface means a POST service using the  addressing logic implemented in harcon.
+To address a service exposed, you have to compose a URI using the name of the division[, context], entity and service. By calling the following URI:
+
+	post -> 'http://localhost:8080/Harcon/book/log'
+
+with a body of
 
 	{ params: [ 'Hello!'] }
 
-will do perfectly.
+will address the service _'log'_ of the component _'book'_ in the division _'Harcon'_.
+The of the entity will be sent as JSON.
 
-Using Websockets is also straightforward:
 
-	var socket = ioclient( 'http://localhost:8080/Inflicter' );
-	socket.emit('ignite', { division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } );
-
-The lib will open the namespace 'Inflicter' listening incoming packets. By sending an __'ignite'__ message passing the communication you want to deliver will do fine.
+#### JSON-RPC 2.0
 
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) supports JSON-RPC 2.0 if you create the instace as follows:
 
 ```javascript
-	var radiation = new Radiation( harcon, { jsonrpcPath: '/JSONRPC' } );
+	var radiation = new Radiation( harcon, rest: { jsonrpcPath: '/RPCTwo' } );
 ```
 
-This will accept POST request on the given path in regard with the JSON-RPC 2.0 standard.
-Setting the _'jsonrpcPath'_ attribute will also open a Websocket namespace listening incoming JSON-RPC 2.0 packets.
+This will accept POST request on the path _'/RPCTwo'_ respecting the JSON-RPC 2.0 standard.
 
-Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__.
+Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__, subdomains/subcontexts cannot be addressed.
+
+
+#### Harcon-RPC 2.0
+
+The following settings will activate the Harcon-RPC option on URI _'/Harcon'_:
+
+```javascript
+	var radiation = new Radiation( harcon, { rest: { harconrpcPath: '/Harcon' } } );
+```
+
+By sending the following JSON to the address, you can address the method _'terminus'_ of the entity _'marie'_ in the division _'King.charming'_:
+
+```javascript
+	{ division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }
+```
+
+
+## Websockets
+
+Using Websockets is also straightforward. By default, the URI will be the name of your Harcon instance. You can override it by the following config:
+
+```javascript
+	var radiation = new Radiation( harcon, { websocket: { socketPath: '/Socket' } } );
+```
+
+Send packet to that address:
+
+	var socket = ioclient( 'http://localhost:8080/Socket' );
+	socket.emit('ignite', { id: '10', division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } );
+
+This will send the JS object to the room 'Socket'. By sending an __'ignite'__ message and passing the communication object you want to deliver will call the function.
+
+The response will be sent as _'done'_ or _'error'_ message depending on the result.
+
+Note: The ID is highly recommended to be passed to differentiate the incoming answer packets.
+
+
+#### JSON-RPC 2.0 over Websocket
+
+This service can be turned on by the following configuration:
+
+```javascript
+	var radiation = new Radiation( harcon, { websocket: { jsonrpcPath: '/SocketRPC' } } );
+```
+
+It will accept and send JSON-RPC JSON packets...
 
 
 ## Emit message to websocket listeners
@@ -131,6 +184,8 @@ harcon.addicts( {
 ```
 
 About the protector functions, please find the description [here](https://github.com/imrefazekas/connect-rest#protector).
+
+Note: this feature is valid only for REST option 1.
 
 
 ## License

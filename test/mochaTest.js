@@ -29,7 +29,11 @@ describe("harcon-radiation", function () {
 
 	before(function(done){
 		harcon = new Harcon( { name: 'King', logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } );
-		radiation = new Radiation( harcon, { name: 'Radiation', hideInnerServices: false, closeRest: false, jsonrpcPath: '/RPCTwo' } );
+		radiation = new Radiation( harcon, {
+			name: 'Radiation',
+			rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
+			websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' }
+		} );
 		radiation.listen( {
 			shifted: function( radiation, object ){
 				console.log( 'shifted', object );
@@ -93,7 +97,7 @@ describe("harcon-radiation", function () {
 
 		//harcon.addicts( julie ); harcon.addicts( marie );
 
-		socketClient = ioclient( 'http://localhost:8080/King' );
+		socketClient = ioclient( 'http://localhost:8080/KingSocket' );
 		socketClient.on('mood', function (data) {
 			console.log('>>>>>>>>>>>>>> Shifted:::', data);
 		} );
@@ -186,12 +190,22 @@ describe("harcon-radiation", function () {
 				}
 			);
 		});
-		it('JSON-RPC 2.0', function(done){
-			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+		it('Harcon-RPC', function(done){
+			httphelper.generalCall( 'http://localhost:8080/Harcon', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }, 'application/json', logger,
 				function(err, result, status){
 					should.not.exist(err); should.exist(result);
 
 					expect( result ).to.include( 'Merci bien. Szióka!' );
+
+					done( );
+				}
+			);
+		});
+		it('JSON-RPC 2.0', function(done){
+			httphelper.generalCall( 'http://localhost:8080/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: '100', jsonrpc: '2.0', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
+				function(err, data, status){
+					should.not.exist(err); should.exist(data);
+					expect( data.result ).to.equal( 'Thanks. Szióka!' );
 
 					done( );
 				}
