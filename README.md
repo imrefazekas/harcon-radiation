@@ -102,7 +102,7 @@ This will accept POST request on the path _'/RPCTwo'_ respecting the JSON-RPC 2.
 Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__, subdomains/subcontexts cannot be addressed.
 
 
-#### Harcon-RPC 2.0
+#### Harcon-RPC
 
 The following settings will activate the Harcon-RPC option on URI _'/Harcon'_:
 

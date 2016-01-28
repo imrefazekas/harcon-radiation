@@ -97,7 +97,10 @@ describe("harcon-radiation", function () {
 
 		//harcon.addicts( julie ); harcon.addicts( marie );
 
-		socketClient = ioclient( 'http://localhost:8080/KingSocket' );
+		socketClient = ioclient( 'http://localhost:8282/Nodrium' );
+		socketClient.on('connect', function (data) {
+			console.log('Connected to KingSocket');
+		} );
 		socketClient.on('mood', function (data) {
 			console.log('>>>>>>>>>>>>>> Shifted:::', data);
 		} );
