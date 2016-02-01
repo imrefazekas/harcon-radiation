@@ -97,7 +97,7 @@ describe("harcon-radiation", function () {
 
 		//harcon.addicts( julie ); harcon.addicts( marie );
 
-		socketClient = ioclient( 'http://localhost:8282/Nodrium' );
+		socketClient = ioclient( 'http://localhost:8080/KingSocket' );
 		socketClient.on('connect', function (data) {
 			console.log('Connected to KingSocket');
 		} );
@@ -105,13 +105,15 @@ describe("harcon-radiation", function () {
 			console.log('>>>>>>>>>>>>>> Shifted:::', data);
 		} );
 		socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' );
+		socketJSONRPCClient.on('connect', function (data) {
+			console.log('Connected to RPCTwo');
+		} );
 
 		harcon.addicts( Publisher );
 		Publisher.watch( path.join(__dirname, 'comps'), -1 );
 
 		server.listen( port, function() {
 			console.log( 'Running on http://localhost:' + port);
-
 			done();
 		});
 	});
