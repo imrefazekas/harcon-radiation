@@ -22,6 +22,7 @@ var io = require('socket.io');
 var ioclient = require('socket.io-client');
 var socketClient, socketJSONRPCClient;
 
+var fs = require('fs');
 var path = require('path');
 var Publisher = require('./Publisher');
 
@@ -32,7 +33,8 @@ describe("harcon-radiation", function () {
 		radiation = new Radiation( harcon, {
 			name: 'Radiation',
 			rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
-			websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' }
+			websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
+			mimesis: { enabled: true }
 		} );
 		radiation.listen( {
 			shifted: function( radiation, object ){
@@ -227,6 +229,20 @@ describe("harcon-radiation", function () {
 					}
 				);
 			}, 1000);
+		});
+
+		it('Mimic-test', function(done){
+			var invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' );
+			httphelper.generalCall( 'http://localhost:8080/King/Nimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function(err, result, status){
+
+				should.not.exist(err);
+				httphelper.generalCall( 'http://localhost:8080/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function(err, result, status){
+					should.not.exist(err);
+					expect( result ).to.include( 'Hello!' );
+					done( );
+				} );
+
+			} );
 		});
 	});
 
