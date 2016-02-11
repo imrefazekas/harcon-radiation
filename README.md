@@ -188,6 +188,21 @@ About the protector functions, please find the description [here](https://github
 Note: this feature is valid only for REST option 1.
 
 
+## Nimesis
+
+Nimesis is a built-in entity of [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) providing one single service:
+
+```javascript
+mimic: function( entityDef ... callback ){
+```
+
+It accepts harcon entity definitions as string and converts them to entity definitions then publishes it according its configuration. By default, all services will be exposed through REST and Websockets as well.
+Serves well when dynamic extension or ability to publish services on-the-fly is a requirement.
+The Nimesis Will hold only 1 definition as reference. When a new definition incomes, the previous one will be destructed.
+
+Note: this feature is serving special purposes, use it with adequate caution.
+
+
 ## License
 
 (The MIT License)
