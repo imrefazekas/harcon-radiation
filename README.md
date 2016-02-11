@@ -200,6 +200,8 @@ It accepts harcon entity definitions as string and converts them to entity defin
 Serves well when dynamic extension or ability to publish services on-the-fly is a requirement.
 The Nimesis Will hold only 1 definition as reference. When a new definition incomes, the previous one will be destructed.
 
+Calling the function _'reshape'_ will remove the published entity.
+
 Note: this feature is serving special purposes, use it with adequate caution.
 
 
