@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -27,7 +27,7 @@
     "async": "^1.5.2",
     "clerobee": "^0.5.1",
     "connect-rest": "~2",
-    "harcon": "^3.0.0",
+    "harcon": "^3.1.0",
     "isa.js": "^1.6.1",
     "socket.io": "~1"
   },

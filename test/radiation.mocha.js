@@ -194,6 +194,7 @@ describe('harcon-radiation', function () {
 
 	})
 
+
 	describe('Test REST calls', function () {
 		it('Division-less', function (done) {
 			httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
@@ -219,6 +220,7 @@ describe('harcon-radiation', function () {
 				}
 			)
 		})
+
 		it('Division-cared with terms', function (done) {
 			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
@@ -231,6 +233,7 @@ describe('harcon-radiation', function () {
 				}
 			)
 		})
+
 		it('Harcon-RPC', function (done) {
 			httphelper.generalCall( 'http://localhost:8080/Harcon', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
@@ -243,6 +246,7 @@ describe('harcon-radiation', function () {
 				}
 			)
 		})
+
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
 			httphelper.generalCall( 'http://localhost:8080/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
@@ -255,10 +259,10 @@ describe('harcon-radiation', function () {
 				}
 			)
 		})
-		it('Test Revoke', function (done) {
-			harcon.detracts( julie )
 
-			setTimeout(function () {
+		it('Test Revoke', function (done) {
+			harcon.detracts( julie, function (err) {
+				if (err) return done(err)
 				httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 					function (err, result, status) {
 						should.not.exist( err )
@@ -266,7 +270,7 @@ describe('harcon-radiation', function () {
 						done( )
 					}
 				)
-			}, 1000)
+			} )
 		})
 
 		it('Mimic-test', function (done) {
