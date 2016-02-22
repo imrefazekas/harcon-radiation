@@ -1,8 +1,7 @@
 Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/harcon) library to automatically expose selected entities through REST and/or Websocket.
 
 [![NPM](https://nodei.co/npm/harcon-radiation.png)](https://nodei.co/npm/harcon-radiation/)
-
-!Note: Please be aware, that from version 1.3.0, harcon-radiation requires Node 4.0.0 or above...
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ================
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is a small, yet handy tool extending the [harcon](https://github.com/imrefazekas/harcon) library to provide a [REST](http://en.wikipedia.org/wiki/Representational_state_transfer)-, and [Websocket](http://en.wikipedia.org/wiki/WebSocket)-based interface to it.
@@ -15,17 +14,18 @@ $ npm install harcon-radiation
 
 ## Quick setup
 ```javascript
-var harcon = new Harcon( { ... } );
-var radiation = new Radiation( harcon );
-var rest = require('connect-rest');
-var connect = require('connect');
+var harcon = new Harcon( { ... } )
+harcon.init( function (err) {} )
+var radiation = new Radiation( harcon )
+var rest = require('connect-rest')
+var connect = require('connect')
 ...
-var app = connect();
+var app = connect()
 ...
-app.use( radiation.rester( rest, options ) ); // Activates the REST services
+app.use( radiation.rester( rest, options ) ) // Activates the REST services
 ...
-server = http.createServer(app);
-io = radiation.io( io.listen( server ) ); // Activates the Websocket services
+server = http.createServer(app)
+io = radiation.io( io.listen( server ) ) // Activates the Websocket services
 ...
 harcon.addicts( {
 	name: 'julie',
@@ -33,9 +33,9 @@ harcon.addicts( {
 	rest: true,
 	websocket: true,
 	log: function( data, callback ){
-		callback( null, 'Done.' );
+		callback( null, 'Done.' )
 	}
-} );
+} )
 ```
 The example shows how you can attach the __radiation__ to a connect/express instance and link to your _harcon_ instance. You can activate the REST and Websocket interfaces.
 Any object-based entities published to [harcon](https://github.com/imrefazekas/harcon) possessing attributes __'rest'__ and __'websocket'__ will be exposed through those interfaces automatically.
@@ -46,21 +46,21 @@ Any object-based entities published to [harcon](https://github.com/imrefazekas/h
 The default behavior is to publish all services. However, one can define rules to make exceptions. By setting the option _hideInnerServices_, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) will hide inner services and won't publish them
 
 ```javascript
-var radiation = new Radiation( harcon, { hideInnerServices: true } );
+var radiation = new Radiation( harcon, { hideInnerServices: true } )
 ```
 
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) ignores a service in 2 cases:
 
 - its name starts with a given prefix
 ```javascript
-	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesPrefix: '_' } );
+	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesPrefix: '_' } )
 ```
 
 - its name matches to a given pattern
 ```javascript
 	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesFn: function(name){
-		return name.startsWith('inner') || name.startsWith('sys');
-	} } );
+		return name.startsWith('inner') || name.startsWith('sys')
+	} } )
 ```
 
 ## Call REST
@@ -94,7 +94,7 @@ The of the entity will be sent as JSON.
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) supports JSON-RPC 2.0 if you create the instace as follows:
 
 ```javascript
-	var radiation = new Radiation( harcon, rest: { jsonrpcPath: '/RPCTwo' } );
+	var radiation = new Radiation( harcon, rest: { jsonrpcPath: '/RPCTwo' } )
 ```
 
 This will accept POST request on the path _'/RPCTwo'_ respecting the JSON-RPC 2.0 standard.
@@ -107,7 +107,7 @@ Note: be aware the limitations of JSON-RPC. It does not support orchestration li
 The following settings will activate the Harcon-RPC option on URI _'/Harcon'_:
 
 ```javascript
-	var radiation = new Radiation( harcon, { rest: { harconrpcPath: '/Harcon' } } );
+	var radiation = new Radiation( harcon, { rest: { harconrpcPath: '/Harcon' } } )
 ```
 
 By sending the following JSON to the address, you can address the method _'terminus'_ of the entity _'marie'_ in the division _'King.charming'_:
@@ -122,13 +122,13 @@ By sending the following JSON to the address, you can address the method _'termi
 Using Websockets is also straightforward. By default, the URI will be the name of your Harcon instance. You can override it by the following config:
 
 ```javascript
-	var radiation = new Radiation( harcon, { websocket: { socketPath: '/Socket' } } );
+	var radiation = new Radiation( harcon, { websocket: { socketPath: '/Socket' } } )
 ```
 
 Send packet to that address:
 
-	var socket = ioclient( 'http://localhost:8080/Socket' );
-	socket.emit('ignite', { id: '10', division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } );
+	var socket = ioclient( 'http://localhost:8080/Socket' )
+	socket.emit('ignite', { id: '10', division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } )
 
 This will send the JS object to the room 'Socket'. By sending an __'ignite'__ message and passing the communication object you want to deliver will call the function.
 
@@ -142,7 +142,7 @@ Note: The ID is highly recommended to be passed to differentiate the incoming an
 This service can be turned on by the following configuration:
 
 ```javascript
-	var radiation = new Radiation( harcon, { websocket: { jsonrpcPath: '/SocketRPC' } } );
+	var radiation = new Radiation( harcon, { websocket: { jsonrpcPath: '/SocketRPC' } } )
 ```
 
 It will accept and send JSON-RPC JSON packets...
@@ -154,7 +154,7 @@ You can send out / broadcast messages to connected listeners if your business en
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) uses this mechanism to send out those messages to the websocket listeners.
 
 ```javascript
-	this.shifted( { mood: 'happy' } );
+	this.shifted( { mood: 'happy' } )
 ```
 
 That will send the message 'mood' to the connected clients with the data _'happy'_.
@@ -176,11 +176,11 @@ harcon.addicts( {
 	security: {
 		protector: function(service){
 			return function( req, res, pathname, path, callback ){
-				callback();
+				callback()
 			}
 		}
 	}
-} );
+} )
 ```
 
 About the protector functions, please find the description [here](https://github.com/imrefazekas/connect-rest#protector).
