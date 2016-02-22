@@ -80,8 +80,6 @@ module.exports = {
 		let extension = '.js'
 		let matcher = function (filePath) { return pattern ? pattern.test(filePath) : filePath.endsWith( extension ) }
 
-		self.close()
-
 		if ( !fs.existsSync( folder ) )
 			mkdirp.sync( folder )
 
@@ -108,8 +106,7 @@ module.exports = {
 				})
 			})
 
-			if ( !timeout )
-				self.igniteFiles( )
+			self.igniteFiles( )
 
 			if ( callback )
 				callback()
