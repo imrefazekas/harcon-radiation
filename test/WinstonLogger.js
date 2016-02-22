@@ -1,16 +1,18 @@
-var winston = require('winston');
+'use strict'
 
-exports.createWinstonLogger = function( options ){
-	options = options || {};
-	if( options.console ){
-		return new (winston.Logger)({ transports: [ new (winston.transports.Console)({ /*level: 'debug',*/ colorize: 'true' }) ] });
+let winston = require('winston')
+
+exports.createWinstonLogger = function ( options ) {
+	options = options || {}
+	if ( options.console ) {
+		return new (winston.Logger)({ transports: [ new (winston.transports.Console)({ /* level: 'debug',*/ colorize: 'true' }) ] })
 	}
 
-	if( options.exceptionFile )
-		winston.handleExceptions(new winston.transports.File({ filename: options.exceptionFile }));
+	if ( options.exceptionFile )
+		winston.handleExceptions(new winston.transports.File({ filename: options.exceptionFile }))
 	else
-		winston.handleExceptions( new (winston.transports.Console)({ level: 'error', colorize: 'true' }) );
-	var transports = [
+		winston.handleExceptions( new (winston.transports.Console)({ level: 'error', colorize: 'true' }) )
+	let transports = [
 		new (winston.transports.Console)({ level: 'error', colorize: 'true' }),
 		new (winston.transports.File)( {
 			filename: options.file || 'server.log',
@@ -18,6 +20,6 @@ exports.createWinstonLogger = function( options ){
 			maxsize: options.maxSize || 1000000,
 			maxFiles: options.maxFiles || 1
 		} )
-	];
-	return new (winston.Logger)({ transports: transports });
-};
+	]
+	return new (winston.Logger)({ transports: transports })
+}

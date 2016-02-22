@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "2.6.0",
+  "version": "3.0.0",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -23,30 +23,30 @@
   "license": "MIT",
   "main": "./lib/harcon-radiation.js",
   "dependencies": {
-    "assign.js": "^0.2.0",
+    "assign.js": "^1.6.6",
     "async": "^1.5.2",
-    "clerobee": "latest",
+    "clerobee": "^0.5.1",
     "connect-rest": "~2",
-    "harcon": "^2.10.1",
-    "isa.js": "~1",
+    "harcon": "^3.0.0",
+    "isa.js": "^1.6.1",
     "socket.io": "~1"
   },
   "devDependencies": {
-    "body-parser": "~1",
-    "chai": "~3",
-    "connect": "~3",
-    "gulp": "~3",
-    "gulp-docco": "latest",
-    "gulp-eslint": "~1",
-    "gulp-load-plugins": "latest",
-    "gulp-mocha": "latest",
-    "gulp-util": "latest",
+    "body-parser": "^1.15.0",
+    "chai": "^3.5.0",
+    "connect": "^3.4.1",
+    "gulp": "^3.9.1",
+    "gulp-docco": "0.0.4",
+    "gulp-eslint": "^2.0.0",
+    "gulp-load-plugins": "^1.2.0",
+    "gulp-mocha": "^2.2.0",
+    "gulp-util": "^3.0.7",
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "socket.io-client": "~1",
     "watch": "^0.17.1",
-    "webpack": "~1",
-    "winston": "latest"
+    "webpack": "^1.12.13",
+    "winston": "^2.1.1"
   },
   "engines": {
     "node": ">= 4.0.0"
