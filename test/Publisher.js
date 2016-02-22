@@ -18,6 +18,8 @@ module.exports = {
 		if ( !this.globalConfig )
 			this.globalConfig = {}
 
+		this.watchMonitors = []
+
 		return this
 	},
 	addGlobalConfig: function ( config ) {
@@ -65,18 +67,15 @@ module.exports = {
 	readFiles: function ( folder, matcher, callback ) {
 		let self = this
 		fs.readdir(folder, function (err, files) {
-			if (err)
-				console.error( err )
-			else {
-				for (let i = 0; i < files.length; i += 1)
-					if ( matcher(files[i]) )
-						self.scheduleFile( folder, files[i] )
-			}
+			if (err) return callback( err )
+			for (let i = 0; i < files.length; i += 1)
+				if ( matcher(files[i]) )
+					self.scheduleFile( folder, files[i] )
 			if ( callback )
 				callback()
 		})
 	},
-	watch: function ( folder, timeout, pattern, callback ) {
+	watch: function ( folder, pattern, timeout, callback ) {
 		let self = this
 		let extension = '.js'
 		let matcher = function (filePath) { return pattern ? pattern.test(filePath) : filePath.endsWith( extension ) }
@@ -91,9 +90,15 @@ module.exports = {
 		let isComponent = function (filePath, stat) {
 			return !stat.isDirectory() && matcher(filePath)
 		}
-		self.readFiles( folder, matcher, function () {
+
+		if ( timeout > 0 && !self.intervalObject )
+			self.intervalObject = setInterval( function () { self.igniteFiles( ) }, timeout )
+
+		self.readFiles( folder, matcher, function (err) {
+			if (err) return callback(err)
+
 			watch.createMonitor( folder, function (monitor) {
-				self.monitor = monitor
+				self.watchMonitors.push( monitor )
 				let handler = function (f, stat) {
 					if ( isComponent( f, stat ) )
 						self.scheduleFile( null, f )
@@ -102,9 +107,8 @@ module.exports = {
 					monitor.on( eventName, handler )
 				})
 			})
-			if ( timeout && timeout > 0 )
-				self.intervalObject = setInterval( function () { self.igniteFiles( ) }, timeout )
-			else
+
+			if ( !timeout )
 				self.igniteFiles( )
 
 			if ( callback )
@@ -112,8 +116,10 @@ module.exports = {
 		})
 	},
 	close: function ( callback ) {
-		if ( this.monitor )
-			this.monitor.stop()
+		this.watchMonitors.forEach( function ( monitor ) {
+			monitor.stop()
+		} )
+		this.watchMonitors.length = 0
 
 		if ( this.intervalObject )
 			clearInterval( this.intervalObject )

@@ -135,7 +135,7 @@ describe('harcon-radiation', function () {
 			} )
 			fns.push(function (cb) {
 				let port = process.env.PORT || 8080
-				Publisher.watch( path.join(__dirname, 'comps'), -1 )
+				Publisher.watch( path.join(__dirname, 'comps') )
 
 				server.listen( port, function () {
 					console.log( 'Running on http://localhost:' + port)
