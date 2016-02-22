@@ -15,7 +15,7 @@ gulp.task( 'mocha', function (callback) {
 
 gulp.task( 'doc', function (callback) {
 	var doccoOptions
-	return 	gulp.src('./test/mochaTest.js')
+	return 	gulp.src('./test/radiation.mocha.js')
 			.pipe( plugins.docco( doccoOptions ) )
 			.pipe( gulp.dest('./doc') )
 } )

@@ -37,113 +37,116 @@ let clerobee = new Cerobee( 16 )
 describe('harcon-radiation', function () {
 
 	before(function (done) {
-		harcon = new Harcon( { name: 'King', logger: logger, idLength: 32, marie: {greetings: 'Hi!'} } )
+		harcon = new Harcon( { name: 'King', logger: logger, idLength: 32, marie: {greetings: 'Hi!'} }, function (err) {
+			if (err) return done(err)
 
-		let fns = []
-		fns.push(function (cb) {
-			radiation = new Radiation( harcon, {
-				name: 'Radiation',
-				rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
-				websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
-				mimesis: { enabled: true }
-			} )
-			radiation.init( cb )
-		})
-		fns.push(function (cb) {
-			radiation.listen( {
-				shifted: function ( radiation, object ) {
-					console.log( 'shifted', object )
-				},
-				posted: function ( radiation, request ) {
-					console.log( 'posted', request )
-				},
-				ioCreacted: function ( radiation, namespaceSocker ) {
-					console.log( 'ioCreacted', namespaceSocker )
-				},
-				ioConnected: function ( radiation, socket ) {
-					console.log( 'ioConnected' )
-				}
-			} )
-
-			julie = {
-				name: 'julie',
-				context: 'morning',
-				rest: true,
-				websocket: true,
-				wakeup: function ( greetings, ignite, callback ) {
-					this.shifted( { mood: 'happy' } )
-					callback( null, 'Thanks. ' + greetings )
-				}
-			}
-			marie = {
-				name: 'marie',
-				division: 'charming',
-				context: 'morning',
-				rest: true,
-				websocket: true,
-				greetings: function ( greetings, ignite, callback ) {
-					callback( null, 'Merci bien. ' + greetings )
-				},
-				terminus: function ( greetings, terms, ignite, callback ) {
-					console.log('TERMS::', terms)
-					callback( null, 'Merci bien. ' + greetings )
-				}
-			}
-			cb()
-		})
-		fns.push(function (cb) {
-			harcon.addicts( julie, {}, cb )
-		})
-		fns.push(function (cb) {
-			harcon.addicts( marie, {}, cb )
-		})
-		fns.push(function (cb) {
-			let app = connect()
-				.use( bodyParser.urlencoded( { extended: true } ) )
-				.use( bodyParser.json() )
-
-			let options = {
-				context: '/api',
-				logger: logger,
-				apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ],
-				discoverPath: 'discover',
-				protoPath: 'proto'
-			}
-			let rester = Rest.create( options )
-			app.use( radiation.rester( rester ) )
-
-			server = http.createServer(app)
-
-			io = radiation.io( io.listen( server ) )
-
-			// harcon.addicts( julie ) harcon.addicts( marie )
-
-			socketClient = ioclient( 'http://localhost:8080/KingSocket' )
-			socketClient.on('connect', function (data) {
-				console.log('Connected to KingSocket')
-			} )
-			socketClient.on('mood', function (data) {
-				console.log('>>>>>>>>>>>>>> Shifted:::', data)
-			} )
-			socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' )
-			socketJSONRPCClient.on('connect', function (data) {
-				console.log('Connected to RPCTwo')
-			} )
-
-			harcon.addicts( Publisher, {}, cb )
-		} )
-		fns.push(function (cb) {
-			let port = process.env.PORT || 8080
-			Publisher.watch( path.join(__dirname, 'comps'), -1 )
-
-			server.listen( port, function () {
-				console.log( 'Running on http://localhost:' + port)
-				done()
+			let fns = []
+			fns.push(function (cb) {
+				radiation = new Radiation( harcon, {
+					name: 'Radiation',
+					rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
+					websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
+					mimesis: { enabled: true }
+				} )
+				radiation.init( cb )
 			})
-		})
-		async.series( fns, function ( err, res ) {
-			done( err )
+			fns.push(function (cb) {
+				radiation.listen( {
+					shifted: function ( radiation, object ) {
+						console.log( 'shifted', object )
+					},
+					posted: function ( radiation, request ) {
+						console.log( 'posted', request )
+					},
+					ioCreacted: function ( radiation, namespaceSocker ) {
+						console.log( 'ioCreacted', namespaceSocker )
+					},
+					ioConnected: function ( radiation, socket ) {
+						console.log( 'ioConnected' )
+					}
+				} )
+
+				julie = {
+					name: 'julie',
+					context: 'morning',
+					rest: true,
+					websocket: true,
+					wakeup: function ( greetings, ignite, callback ) {
+						this.shifted( { mood: 'happy' } )
+						callback( null, 'Thanks. ' + greetings )
+					}
+				}
+				marie = {
+					name: 'marie',
+					division: 'charming',
+					context: 'morning',
+					rest: true,
+					websocket: true,
+					greetings: function ( greetings, ignite, callback ) {
+						callback( null, 'Merci bien. ' + greetings )
+					},
+					terminus: function ( greetings, terms, ignite, callback ) {
+						console.log('TERMS::', terms)
+						callback( null, 'Merci bien. ' + greetings )
+					}
+				}
+				cb()
+			})
+			fns.push(function (cb) {
+				harcon.addicts( julie, {}, cb )
+			})
+			fns.push(function (cb) {
+				harcon.addicts( marie, {}, cb )
+			})
+			fns.push(function (cb) {
+				let app = connect()
+					.use( bodyParser.urlencoded( { extended: true } ) )
+					.use( bodyParser.json() )
+
+				let options = {
+					context: '/api',
+					logger: logger,
+					apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ],
+					discoverPath: 'discover',
+					protoPath: 'proto'
+				}
+				let rester = Rest.create( options )
+				app.use( radiation.rester( rester ) )
+
+				server = http.createServer(app)
+
+				io = radiation.io( io.listen( server ) )
+
+				// harcon.addicts( julie ) harcon.addicts( marie )
+
+				socketClient = ioclient( 'http://localhost:8080/KingSocket' )
+				socketClient.on('connect', function (data) {
+					console.log('Connected to KingSocket')
+				} )
+				socketClient.on('mood', function (data) {
+					console.log('>>>>>>>>>>>>>> Shifted:::', data)
+				} )
+				socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' )
+				socketJSONRPCClient.on('connect', function (data) {
+					console.log('Connected to RPCTwo')
+				} )
+
+				harcon.addicts( Publisher, {}, cb )
+			} )
+			fns.push(function (cb) {
+				let port = process.env.PORT || 8080
+				Publisher.watch( path.join(__dirname, 'comps'), -1 )
+
+				server.listen( port, function () {
+					console.log( 'Running on http://localhost:' + port)
+					done()
+				})
+			})
+			async.series( fns, function ( err, res ) {
+				done( err )
+			} )
 		} )
+
 	})
 
 	describe('Test Websocket calls', function () {

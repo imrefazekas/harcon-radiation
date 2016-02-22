@@ -17,21 +17,29 @@ module.exports = {
 
 		if ( !this.globalConfig )
 			this.globalConfig = {}
+
+		return this
 	},
 	addGlobalConfig: function ( config ) {
 		this.init()
 
 		this.globalConfig = config
+
+		return this
 	},
 	addConfig: function ( name, config ) {
 		this.init()
 
 		this.configs[name] = config
+
+		return this
 	},
 	scheduleFile: function ( folder, fileName ) {
 		let path = folder ? folder + '/' + fileName : fileName
 		if ( this.files.indexOf( path ) === -1 )
 			this.files.push( path )
+
+		return this
 	},
 	igniteFiles: function ( ) {
 		let self = this
