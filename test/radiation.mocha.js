@@ -197,7 +197,6 @@ describe('harcon-radiation', function () {
 
 	})
 
-
 	describe('Test REST calls', function () {
 		it('Division-less', function (done) {
 			httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
@@ -211,6 +210,7 @@ describe('harcon-radiation', function () {
 				}
 			)
 		})
+
 		it('Division-cared', function (done) {
 			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
@@ -289,6 +289,7 @@ describe('harcon-radiation', function () {
 
 			} )
 		})
+
 	})
 
 	describe('Test Publishing calls', function () {
