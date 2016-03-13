@@ -148,7 +148,14 @@ describe('harcon-radiation', function () {
 		} )
 
 	})
-
+	describe('System checks', function () {
+		it('URIs', function (done) {
+			radiation.entityURIs( function ( err, uris ) {
+				console.log( err, JSON.stringify(uris) )
+				done()
+			} )
+		} )
+	} )
 	describe('Test Websocket calls', function () {
 		it('Division-less', function (done) {
 			let mID = clerobee.generate()
