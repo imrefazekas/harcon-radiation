@@ -163,6 +163,62 @@ All properties of the object sent will be turned into separate messages to be br
 Note: Considering the nature of the JSON-RPC 2.0, this level of service is available only for the _'normal'_ websockets clients.
 
 
+## Distinguish websocket clients
+
+By default, the function _'shifted'_ emits message to all listeners connected. Some business cases desire more focused approach, targeting a defined group of clients.
+During the _'ignite'_ message processing, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to have a callback, when the results are about to send back to the caller.
+
+THe configuration file might define the following attribute:
+
+```javascript
+assignSocket: function (event) {
+	return function ( err, res, socket, callback ) {
+		callback( err, res )
+	}
+}
+```
+
+The function '_assignSocket_' is called as a final step of message processing. It requires a function as a return value answering the event just processed. By default, it is the same function doing nothing.
+You can extend this to inject your logic to mark sockets as below:
+
+```javascript
+assignSocket: function (event) {
+	if (event === 'Julie.login')
+		return function ( err, name, socket, callback ) {
+			console.log('>>>>>>>>>>', err, name[0])
+			socket.name = name[0]
+			socket.join( name[0] )
+			callback( err, name )
+		}
+	return function ( err, res, socket, callback ) {
+		callback( err, res )
+	}
+}
+```
+
+This definition tells the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) to use another function for events _'Julie.login'_. If the login was successful, the name is associated to the socket connected.
+
+Using sockets, you have 2 ways to walk on:
+- associate sockets to [rooms](http://socket.io/docs/rooms-and-namespaces/)
+- add custom attributes to socket instances
+
+You can use one of them or both, as you wish.
+
+Either way, you can identify clients easily by specifying selection expression in function _'shift'_ as below:
+
+```javascript
+this.shifted( { mood: 'Pour toi, Claire' }, 'Claire' )
+```
+
+This solution identifies the room _'Claire'_ targeting all sockets within.
+
+```javascript
+this.shifted( { mood: 'C\'est fini, Marie' }, {name: 'Marie'} )
+```
+
+This solution identifies all sockets possessing the given attributes and values.
+
+
 ## Security
 
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is using [connect-rest](https://github.com/imrefazekas/connect-rest) inside and allows you to use the security features of that REST lib.
