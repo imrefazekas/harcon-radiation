@@ -119,27 +119,30 @@ describe('harcon-radiation', function () {
 
 				// harcon.addicts( julie ) harcon.addicts( marie )
 
-				socketClient = ioclient( 'http://localhost:8080/KingSocket' )
+				socketClient = ioclient( 'http://localhost:8181/KingSocket' )
 				socketClient.on('connect', function (data) {
 					console.log('Connected to KingSocket')
 				} )
 				socketClient.on('mood', function (data) {
-					console.log('>>>>>>>>>>>>>> Shifted:::', data)
+					console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
 				} )
-				socketJSONRPCClient = ioclient( 'http://localhost:8080/RPCTwo' )
+				socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
 				socketJSONRPCClient.on('connect', function (data) {
 					console.log('Connected to RPCTwo')
+				} )
+				socketJSONRPCClient.on('mood', function (data) {
+					console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
 				} )
 
 				harcon.addicts( Publisher, {}, cb )
 			} )
 			fns.push(function (cb) {
-				let port = process.env.PORT || 8080
+				let port = process.env.PORT || 8181
 				Publisher.watch( path.join(__dirname, 'comps') )
 
 				server.listen( port, function () {
 					console.log( 'Running on http://localhost:' + port)
-					done()
+					cb()
 				})
 			})
 			async.series( fns, function ( err, res ) {
@@ -206,7 +209,7 @@ describe('harcon-radiation', function () {
 
 	describe('Test REST calls', function () {
 		it('Division-less', function (done) {
-			httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)
@@ -219,7 +222,7 @@ describe('harcon-radiation', function () {
 		})
 
 		it('Division-cared', function (done) {
-			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/King/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)
@@ -232,7 +235,7 @@ describe('harcon-radiation', function () {
 		})
 
 		it('Division-cared with terms', function (done) {
-			httphelper.generalCall( 'http://localhost:8080/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)
@@ -245,7 +248,7 @@ describe('harcon-radiation', function () {
 		})
 
 		it('Harcon-RPC', function (done) {
-			httphelper.generalCall( 'http://localhost:8080/Harcon', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/Harcon', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)
@@ -259,7 +262,7 @@ describe('harcon-radiation', function () {
 
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8080/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
 				function (err, data, status) {
 					should.not.exist(err)
 					should.exist(data)
@@ -273,7 +276,7 @@ describe('harcon-radiation', function () {
 		it('Test Revoke', function (done) {
 			harcon.detracts( julie, function (err) {
 				if (err) return done(err)
-				httphelper.generalCall( 'http://localhost:8080/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+				httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
 					function (err, result, status) {
 						should.not.exist( err )
 						expect( status.statusCode ).to.equal( 404 )
@@ -285,10 +288,10 @@ describe('harcon-radiation', function () {
 
 		it('Mimic-test', function (done) {
 			let invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' )
-			httphelper.generalCall( 'http://localhost:8080/King/Nimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
+			httphelper.generalCall( 'http://localhost:8181/King/Nimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
 
 				should.not.exist(err)
-				httphelper.generalCall( 'http://localhost:8080/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function (err, result, status) {
+				httphelper.generalCall( 'http://localhost:8181/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function (err, result, status) {
 					should.not.exist(err)
 					expect( result ).to.include( 'Hello!' )
 					done( )
@@ -302,7 +305,7 @@ describe('harcon-radiation', function () {
 	describe('Test Publishing calls', function () {
 		it('Calling Automata', function ( done ) {
 			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8080/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)
