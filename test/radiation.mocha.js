@@ -163,13 +163,13 @@ describe('harcon-radiation', function () {
 		it('Division-less', function (done) {
 			let mID = clerobee.generate()
 			socketClient.emit('ignite', { id: mID, division: 'King', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } )
-			socketClient.on('done', function (data) {
+			socketClient.on('success', function (data) {
 				if ( data.id === mID ) {
 					expect( data.result ).to.include( 'Thanks. Helloka!' )
 					done( )
 				}
 			})
-			socketClient.on('error', function (data) {
+			socketClient.on('failure', function (data) {
 				if ( data.id === mID )
 					done( new Error(data) )
 			})
@@ -178,13 +178,13 @@ describe('harcon-radiation', function () {
 		it('Division-cared', function (done) {
 			let mID = clerobee.generate()
 			socketClient.emit('ignite', { id: mID, division: 'King.charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } )
-			socketClient.on('done', function (data) {
+			socketClient.on('success', function (data) {
 				if ( data.id === mID ) {
 					expect( data.result ).to.include( 'Merci bien. Szióka!' )
 					done( )
 				}
 			})
-			socketClient.on('error', function (data) {
+			socketClient.on('failure', function (data) {
 				if ( data.id === mID )
 					done( new Error(data) )
 			})
@@ -192,14 +192,14 @@ describe('harcon-radiation', function () {
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
 			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: mID } )
-			socketJSONRPCClient.on('done', function (data) {
+			socketJSONRPCClient.on('success', function (data) {
 				done( )
 				if ( data.id === mID ) {
 					expect( data.result ).to.include( 'Merci bien. Szióka!' )
 					done( )
 				}
 			})
-			socketJSONRPCClient.on('error', function (data) {
+			socketJSONRPCClient.on('failure', function (data) {
 				if ( data.id === mID )
 					done( new Error(data) )
 			})

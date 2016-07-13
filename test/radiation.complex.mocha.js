@@ -26,13 +26,13 @@ let clerobee = new Cerobee( 16 )
 
 let authAssigner = function (event) {
 	if (event === 'Julie.login')
-		return function ( err, name, socket, callback ) {
-			console.log('>>>>>>>>>>', err, name[0])
+		return function ( terms, err, name, socket, callback ) {
+			console.log('>>>>>>>>>>', event, terms, err, name, socket, callback )
 			socket.name = name[0]
 			socket.join( name[0] )
 			callback( err, name )
 		}
-	return function ( err, res, socket, callback ) {
+	return function ( terms, err, res, socket, callback ) {
 		callback( err, res )
 	}
 }
