@@ -191,7 +191,7 @@ describe('harcon-radiation', function () {
 		})
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
-			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: mID } )
+			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: mID } )
 			socketJSONRPCClient.on('success', function (data) {
 				done( )
 				if ( data.id === mID ) {
@@ -262,7 +262,7 @@ describe('harcon-radiation', function () {
 
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
 				function (err, data, status) {
 					should.not.exist(err)
 					should.exist(data)
@@ -288,7 +288,7 @@ describe('harcon-radiation', function () {
 
 		it('Mimic-test', function (done) {
 			let invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' )
-			httphelper.generalCall( 'http://localhost:8181/King/Nimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
+			httphelper.generalCall( 'http://localhost:8181/King/Mimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
 
 				should.not.exist(err)
 				httphelper.generalCall( 'http://localhost:8181/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function (err, result, status) {
@@ -305,7 +305,7 @@ describe('harcon-radiation', function () {
 	describe('Test Publishing calls', function () {
 		it('Calling Automata', function ( done ) {
 			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', method: 'julie.wakeup', params: [ 'Bonjour!' ] }, 'application/json', logger,
+			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: [ 'Bonjour!' ] }, 'application/json', logger,
 				function (err, result, status) {
 					should.not.exist(err)
 					should.exist(result)

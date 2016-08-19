@@ -244,6 +244,22 @@ About the protector functions, please find the description [here](https://github
 Note: this feature is valid only for REST option 1.
 
 
+## Shield
+
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to define a shield function in the config file in order to protect the system against unwanted addressing or reaching restricted area:
+
+```javascript
+var harcon = new Harcon( {
+	...
+	shield: function (division, event) {
+		return false
+	}
+} )
+```
+
+Should that function return 'true', the incoming message should be rejected with an error: 'Message has been blocked'
+
+
 ## Nimesis
 
 Nimesis is a built-in entity of [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) providing one single service:

@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "4.5.1",
+  "version": "4.5.2",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -45,8 +45,8 @@
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "socket.io-client": "~1",
-    "watch": "^0.19.1",
-    "webpack": "^1.13.1",
+    "watch": "^0.19.2",
+    "webpack": "^1.13.2",
     "winston": "^2.2.0"
   },
   "engines": {
