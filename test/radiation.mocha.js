@@ -154,7 +154,7 @@ describe('harcon-radiation', function () {
 	describe('System checks', function () {
 		it('URIs', function (done) {
 			radiation.entityURIs( function ( err, uris ) {
-				console.log( err, JSON.stringify(uris) )
+				console.log( 'entityURIs>>>>>', err, JSON.stringify(uris) )
 				done()
 			} )
 		} )
