@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "4.6.5",
+  "version": "4.6.6",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
