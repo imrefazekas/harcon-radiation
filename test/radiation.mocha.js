@@ -46,7 +46,8 @@ describe('harcon-radiation', function () {
 					name: 'Radiation',
 					rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
 					websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
-					mimesis: { enabled: true }
+					mimesis: { enabled: true },
+					distinguish: '-Distinguished'
 				} )
 				radiation.init( cb )
 			})

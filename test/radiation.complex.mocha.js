@@ -49,7 +49,8 @@ describe('harcon-radiation', function () {
 				radiation = new Radiation( harcon, {
 					name: 'Radiation',
 					websocket: { socketPath: '/QueenSocket', jsonrpcPath: '/RPCTwo' },
-					assignSocket: authAssigner
+					assignSocket: authAssigner,
+					distinguish: '-Distinguished'
 				} )
 				radiation.init( cb )
 			})
