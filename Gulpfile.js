@@ -10,7 +10,7 @@ gulp.task('eslint', function () {
 
 
 gulp.task( 'mocha', function (callback) {
-	return gulp.src( './test/*.mocha.js' ).pipe( plugins.mocha({reporter: 'nyan'}) )
+	return gulp.src( './test/radiation.mocha.js' ).pipe( plugins.mocha({reporter: 'nyan'}) )
 } )
 
 gulp.task( 'doc', function (callback) {
