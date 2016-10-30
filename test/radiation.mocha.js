@@ -26,7 +26,6 @@ let socketClient, socketJSONRPCClient
 
 let fs = require('fs')
 let path = require('path')
-let Publisher = require('./Publisher')
 
 let Cerobee = require('clerobee')
 let clerobee = new Cerobee( 16 )
@@ -39,6 +38,7 @@ describe('harcon-radiation', function () {
 			name: 'King',
 			logger: logger,
 			idLength: 32,
+			mortar: { enabled: true, folder: path.join( __dirname, 'comps' ) },
 			marie: {greetings: 'Hi!'}
 		} )
 		.then( function (_inflicter) {
@@ -130,11 +130,10 @@ describe('harcon-radiation', function () {
 				console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
 			} )
 
-			return harcon.addicts( Publisher, {} )
+			return harcon
 		} )
 		.then( function () {
 			let port = process.env.PORT || 8181
-			Publisher.watch( path.join(__dirname, 'comps') )
 
 			server.listen( port, function () {
 				console.log( 'Running on http://localhost:' + port)
