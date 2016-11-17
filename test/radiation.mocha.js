@@ -282,9 +282,11 @@ describe('harcon-radiation', function () {
 		it('Mimic-test', function (done) {
 			let invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' )
 			httphelper.generalCall( 'http://localhost:8181/King/Mimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
+				console.log('.............', err, result, status)
 
 				should.not.exist(err)
 				httphelper.generalCall( 'http://localhost:8181/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function (err, result, status) {
+					console.log('.............', err, result, status)
 					should.not.exist(err)
 					expect( result ).to.include( 'Hello!' )
 					done( )
@@ -316,14 +318,14 @@ describe('harcon-radiation', function () {
 			socketClient.disconnect()
 		if ( socketJSONRPCClient )
 			socketJSONRPCClient.disconnect()
+		if ( harcon )
+			harcon.close()
 		if ( server )
 			server.close( function () {
 				console.log('Node stopped')
 				done()
 			} )
-		if ( harcon )
-			harcon.close()
-		if ( !server )
+		else
 			done()
 	})
 })
