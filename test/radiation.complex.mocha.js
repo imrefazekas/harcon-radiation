@@ -7,8 +7,8 @@ let connect = require('connect')
 let Harcon = require('harcon')
 let Radiation = require('../lib/harcon-radiation')
 
-let Logger = require('./WinstonLogger')
-let logger = Logger.createWinstonLogger( { console: true } )
+let Logger = require('./PinoLogger')
+let logger = Logger.createPinoLogger( { level: 'info' } )
 
 let io = require('socket.io')
 let ioclient = require('socket.io-client')
@@ -19,6 +19,8 @@ let harcon, radiation, server
 let julie
 
 let async = require('async')
+
+let path = require('path')
 
 let Cerobee = require('clerobee')
 let clerobee = new Cerobee( 16 )
@@ -41,37 +43,42 @@ describe('harcon-radiation', function () {
 
 	before(function (done) {
 		this.timeout(5000)
-		harcon = new Harcon( { name: 'Queen', logger: logger, idLength: 32 }, function (err) {
-			if (err) return done(err)
+		new Harcon( {
+			name: 'Queen',
+			logger: logger,
+			idLength: 32,
+			mortar: { enabled: true, folder: path.join( __dirname, 'comps' ) },
+			marie: {greetings: 'Hi!'}
+		} )
+		.then( function (_inflicter) {
+			harcon = _inflicter
+			radiation = new Radiation( harcon, {
+				name: 'Radiation',
+				websocket: { socketPath: '/QueenSocket', jsonrpcPath: '/RPCTwo' },
+				assignSocket: authAssigner,
+				distinguish: '-Distinguished'
+			} )
+			return radiation.init( )
+		} )
+		.then( function () {
+			return radiation.listen( {
+				shifted: function ( radiation, object ) {
+					console.log( 'shifted', object )
+				},
+				posted: function ( radiation, request ) {
+					console.log( 'posted', request )
+				},
+				ioCreacted: function ( radiation, namespaceSocker ) {
+					console.log( 'ioCreacted', namespaceSocker )
+				},
+				ioConnected: function ( radiation, socket ) {
+					console.log( 'ioConnected' )
+				}
+			} )
+		} )
 
+		.then( function () {
 			let fns = []
-			fns.push(function (cb) {
-				radiation = new Radiation( harcon, {
-					name: 'Radiation',
-					websocket: { socketPath: '/QueenSocket', jsonrpcPath: '/RPCTwo' },
-					assignSocket: authAssigner,
-					distinguish: '-Distinguished'
-				} )
-				radiation.init( cb )
-			})
-			fns.push(function (cb) {
-				radiation.listen( {
-					shifted: function ( radiation, object ) {
-						console.log( 'shifted', object )
-					},
-					posted: function ( radiation, request ) {
-						console.log( 'posted', request )
-					},
-					ioCreacted: function ( radiation, namespaceSocker ) {
-						console.log( 'ioCreacted', namespaceSocker )
-					},
-					ioConnected: function ( radiation, socket ) {
-						console.log( 'ioConnected' )
-					}
-				} )
-
-				cb()
-			})
 			fns.push(function (cb) {
 				julie = {
 					name: 'Julie',
@@ -138,6 +145,9 @@ describe('harcon-radiation', function () {
 			async.series( fns, function ( err, res ) {
 				done( err )
 			} )
+		} )
+		.catch(function (reason) {
+			return done(reason)
 		} )
 	} )
 

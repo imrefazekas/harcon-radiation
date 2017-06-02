@@ -12,8 +12,8 @@ let Harcon = require('harcon')
 
 let Radiation = require('../lib/harcon-radiation')
 
-let Logger = require('./WinstonLogger')
-let logger = Logger.createWinstonLogger( { console: true } )
+let Logger = require('./PinoLogger')
+let logger = Logger.createPinoLogger( { level: 'info' } )
 
 let harcon, radiation, server, julie, marie
 
