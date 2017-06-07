@@ -1,5 +1,9 @@
 'use strict'
 
+process.on('unhandledRejection', (reason, p) => {
+	console.log('Unhandled Rejection at: Promise', p, ' .... reason:', reason)
+})
+
 let chai = require('chai'),
 	should = chai.should(),
 	expect = chai.expect
@@ -41,108 +45,108 @@ describe('harcon-radiation', function () {
 			mortar: { enabled: true, folder: path.join( __dirname, 'comps' ) },
 			marie: {greetings: 'Hi!'}
 		} )
-		.then( function (_inflicter) {
-			harcon = _inflicter
-			radiation = new Radiation( harcon, {
-				name: 'Radiation',
-				rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
-				websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
-				mimesis: { enabled: true },
-				distinguish: '-Distinguished'
+			.then( function (_inflicter) {
+				harcon = _inflicter
+				radiation = new Radiation( harcon, {
+					name: 'Radiation',
+					rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
+					websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
+					mimesis: { enabled: true },
+					distinguish: '-Distinguished'
+				} )
+				return radiation.init( )
 			} )
-			return radiation.init( )
-		} )
-		.then( function () {
-			return radiation.listen( {
-				shifted: function ( radiation, object ) {
-					console.log( 'shifted', object )
-				},
-				posted: function ( radiation, request ) {
-					console.log( 'posted', request )
-				},
-				ioCreacted: function ( radiation, namespaceSocker ) {
-					console.log( 'ioCreacted', namespaceSocker )
-				},
-				ioConnected: function ( radiation, socket ) {
-					console.log( 'ioConnected' )
+			.then( function () {
+				return radiation.listen( {
+					shifted: function ( radiation, object ) {
+						console.log( 'shifted', object )
+					},
+					posted: function ( radiation, request ) {
+						console.log( 'posted', request )
+					},
+					ioCreacted: function ( radiation, namespaceSocker ) {
+						console.log( 'ioCreacted', namespaceSocker )
+					},
+					ioConnected: function ( radiation, socket ) {
+						console.log( 'ioConnected' )
+					}
+				} )
+			} )
+			.then( function () {
+				julie = {
+					name: 'julie',
+					context: 'morning',
+					rest: true,
+					websocket: true,
+					wakeup: function ( greetings, ignite, callback ) {
+						this.shifted( { mood: 'happy' } )
+						callback( null, 'Thanks. ' + greetings )
+					}
 				}
-			} )
-		} )
-		.then( function () {
-			julie = {
-				name: 'julie',
-				context: 'morning',
-				rest: true,
-				websocket: true,
-				wakeup: function ( greetings, ignite, callback ) {
-					this.shifted( { mood: 'happy' } )
-					callback( null, 'Thanks. ' + greetings )
+				marie = {
+					name: 'marie',
+					division: 'charming',
+					context: 'morning',
+					rest: true,
+					websocket: true,
+					greetings: function ( greetings, ignite, callback ) {
+						callback( null, 'Merci bien. ' + greetings )
+					},
+					terminus: function ( greetings, terms, ignite, callback ) {
+						console.log('TERMS::', terms)
+						callback( null, 'Merci bien. ' + greetings )
+					}
 				}
-			}
-			marie = {
-				name: 'marie',
-				division: 'charming',
-				context: 'morning',
-				rest: true,
-				websocket: true,
-				greetings: function ( greetings, ignite, callback ) {
-					callback( null, 'Merci bien. ' + greetings )
-				},
-				terminus: function ( greetings, terms, ignite, callback ) {
-					console.log('TERMS::', terms)
-					callback( null, 'Merci bien. ' + greetings )
+
+				harcon.addicts( julie, {} )
+				harcon.addicts( marie, {} )
+
+				let app = connect()
+					.use( bodyParser.urlencoded( { extended: true } ) )
+					.use( bodyParser.json() )
+
+				let options = {
+					context: '/api',
+					logger: logger,
+					apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ]
 				}
-			}
+				let rester = Rest.create( options )
+				app.use( radiation.rester( rester ) )
 
-			harcon.addicts( julie, {} )
-			harcon.addicts( marie, {} )
+				server = http.createServer(app)
 
-			let app = connect()
-				.use( bodyParser.urlencoded( { extended: true } ) )
-				.use( bodyParser.json() )
+				io = radiation.io( io.listen( server ) )
 
-			let options = {
-				context: '/api',
-				logger: logger,
-				apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ]
-			}
-			let rester = Rest.create( options )
-			app.use( radiation.rester( rester ) )
+				// harcon.addicts( julie ) harcon.addicts( marie )
 
-			server = http.createServer(app)
+				socketClient = ioclient( 'http://localhost:8181/KingSocket' )
+				socketClient.on('connect', function (data) {
+					console.log('Connected to KingSocket')
+				} )
+				socketClient.on('mood', function (data) {
+					console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
+				} )
+				socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
+				socketJSONRPCClient.on('connect', function (data) {
+					console.log('Connected to RPCTwo')
+				} )
+				socketJSONRPCClient.on('mood', function (data) {
+					console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
+				} )
 
-			io = radiation.io( io.listen( server ) )
-
-			// harcon.addicts( julie ) harcon.addicts( marie )
-
-			socketClient = ioclient( 'http://localhost:8181/KingSocket' )
-			socketClient.on('connect', function (data) {
-				console.log('Connected to KingSocket')
+				return harcon
 			} )
-			socketClient.on('mood', function (data) {
-				console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
-			} )
-			socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
-			socketJSONRPCClient.on('connect', function (data) {
-				console.log('Connected to RPCTwo')
-			} )
-			socketJSONRPCClient.on('mood', function (data) {
-				console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
-			} )
+			.then( function () {
+				let port = process.env.PORT || 8181
 
-			return harcon
-		} )
-		.then( function () {
-			let port = process.env.PORT || 8181
-
-			server.listen( port, function () {
-				console.log( 'Running on http://localhost:' + port)
-				done()
-			})
-		} )
-		.catch(function (reason) {
-			return done(reason)
-		} )
+				server.listen( port, function () {
+					console.log( 'Running on http://localhost:' + port)
+					done()
+				})
+			} )
+			.catch(function (reason) {
+				return done(reason)
+			} )
 	})
 	describe('System checks', function () {
 		it('URIs', function (done) {
