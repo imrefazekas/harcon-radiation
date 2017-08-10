@@ -148,6 +148,7 @@ describe('harcon-radiation', function () {
 				return done(reason)
 			} )
 	})
+
 	describe('System checks', function () {
 		it('URIs', function (done) {
 			radiation.entityURIs( function ( err, uris ) {
@@ -186,13 +187,13 @@ describe('harcon-radiation', function () {
 					done( new Error(data) )
 			})
 		})
+
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
 			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: mID } )
 			socketJSONRPCClient.on('success', function (data) {
-				done( )
 				if ( data.id === mID ) {
-					expect( data.result ).to.include( 'Merci bien. Szióka!' )
+					expect( data.result ).to.include( 'Thanks. Bonjour!' )
 					done( )
 				}
 			})
@@ -201,7 +202,6 @@ describe('harcon-radiation', function () {
 					done( new Error(data) )
 			})
 		})
-
 	})
 
 	describe('Test REST calls', function () {
@@ -270,17 +270,19 @@ describe('harcon-radiation', function () {
 			)
 		})
 
+		// unhandler promise appeared ...
 		it('Test Revoke', function (done) {
-			harcon.detracts( julie, function (err) {
-				if (err) return done(err)
-				httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
-					function (err, result, status) {
-						should.not.exist( err )
-						expect( status.statusCode ).to.equal( 404 )
-						done( )
-					}
-				)
-			} )
+			harcon.detracts( julie )
+				.then( () => {
+					httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup2', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
+						function (err, result, status) {
+							should.not.exist( err )
+							expect( status.statusCode ).to.equal( 404 )
+							done( )
+						}
+					)
+				} )
+				.catch( (reason) => { done(reason) } )
 		})
 
 		it('Mimic-test', function (done) {
@@ -298,7 +300,6 @@ describe('harcon-radiation', function () {
 
 			} )
 		})
-
 	})
 
 	describe('Test Publishing calls', function () {
