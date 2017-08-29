@@ -1,5 +1,3 @@
-'use strict'
-
 process.on('unhandledRejection', (reason, p) => {
 	console.log('Unhandled Rejection at: Promise', p, ' .... reason:', reason)
 })
@@ -58,7 +56,7 @@ describe('harcon-radiation', function () {
 			harcon = _inflicter
 			radiation = new Radiation( harcon, {
 				name: 'Radiation',
-				websocket: { socketPath: '/QueenSocket', jsonrpcPath: '/RPCTwo' },
+				websocket: { harconPath: '/QueenSocket', jsonrpcPath: '/RPCTwo' },
 				assignSocket: authAssigner,
 				distinguish: '-Distinguished'
 			} )

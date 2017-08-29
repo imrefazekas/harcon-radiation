@@ -1,9 +1,5 @@
-'use strict'
-
-process.on('unhandledRejection', (reason, p) => {
-	console.log('Unhandled Rejection at: Promise', p, ' .... reason:', reason)
-})
-
+const assert = require('assert')
+const { promisify } = require('util')
 let chai = require('chai'),
 	should = chai.should(),
 	expect = chai.expect
@@ -19,7 +15,7 @@ let Radiation = require('../lib/harcon-radiation')
 let Logger = require('./PinoLogger')
 let logger = Logger.createPinoLogger( { level: 'info' } )
 
-let harcon, radiation, server, julie, marie
+let harcon, radiation, server
 
 let Rest = require('connect-rest')
 let httphelper = Rest.httphelper()
@@ -34,151 +30,143 @@ let path = require('path')
 let Cerobee = require('clerobee')
 let clerobee = new Cerobee( 16 )
 
+let Proback = require('proback.js')
+
+process.on('unhandledRejection', (reason, p) => {
+	console.log('Unhandled Rejection at: Promise', p, ' .... reason:', reason)
+})
 
 describe('harcon-radiation', function () {
 
-	before(function (done) {
-		new Harcon( {
-			name: 'King',
-			logger: logger,
-			idLength: 32,
-			mortar: { enabled: true, folder: path.join( __dirname, 'comps' ) },
-			marie: {greetings: 'Hi!'}
-		} )
-			.then( function (_inflicter) {
-				harcon = _inflicter
-				radiation = new Radiation( harcon, {
-					name: 'Radiation',
-					rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
-					websocket: { socketPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
-					mimesis: { enabled: true },
-					distinguish: '-Distinguished'
-				} )
-				return radiation.init( )
-			} )
-			.then( function () {
-				return radiation.listen( {
-					shifted: function ( radiation, object ) {
-						console.log( 'shifted', object )
+	before( async function () {
+		this.timeout(5000)
+		try {
+			let harconPath = path.join( process.cwd(), 'node_modules', 'harcon', 'test' )
+			harcon = new Harcon( {
+				name: 'King',
+				logger: logger,
+				idLength: 32,
+				mortar: {
+					enabled: true,
+					folder: path.join( harconPath, 'entities' ),
+					entityPatcher: function (entity) {
+						entity.rest = true
+						entity.websocket = true
 					},
-					posted: function ( radiation, request ) {
-						console.log( 'posted', request )
-					},
-					ioCreacted: function ( radiation, namespaceSocker ) {
-						console.log( 'ioCreacted', namespaceSocker )
-					},
-					ioConnected: function ( radiation, socket ) {
-						console.log( 'ioConnected' )
+					waitFor: {
+						entity: 'Radiation',
+						timeout: 100
 					}
-				} )
+				},
+				marie: {greetings: 'Hi!'}
 			} )
-			.then( function () {
-				julie = {
-					name: 'julie',
-					context: 'morning',
-					rest: true,
-					websocket: true,
-					wakeup: function ( greetings, ignite, callback ) {
-						this.shifted( { mood: 'happy' } )
-						callback( null, 'Thanks. ' + greetings )
-					}
+			harcon = await harcon.init()
+			radiation = new Radiation( harcon, {
+				name: 'Radiation',
+				rest: { jsonrpcPath: '/RPCTwo', harconrpcPath: '/Harcon' },
+				websocket: { harconPath: '/KingSocket', jsonrpcPath: '/RPCTwo' },
+				mimesis: { enabled: true },
+				distinguish: '-Distinguished'
+			} )
+			await radiation.init( )
+
+			await harcon.inflicterEntity.addict( null, 'peter', 'greet.*', function (greetings1, greetings2) {
+				return Proback.quicker('Hi there!')
+			} )
+			await harcon.inflicterEntity.addict( null, 'walter', 'greet.*', function (greetings1, greetings2) {
+				return Proback.quicker('My pleasure!')
+			} )
+
+			await radiation.listen( {
+				shifted: function ( radiation, object ) {
+					console.log( 'shifted', object )
+				},
+				posted: function ( radiation, request ) {
+					console.log( 'posted', request )
+				},
+				ioCreacted: function ( radiation, namespace ) {
+					console.log( 'ioCreacted', namespace )
+				},
+				ioConnected: function ( radiation, namespace ) {
+					console.log( 'ioConnected', namespace )
 				}
-				marie = {
-					name: 'marie',
-					division: 'charming',
-					context: 'morning',
-					rest: true,
-					websocket: true,
-					greetings: function ( greetings, ignite, callback ) {
-						callback( null, 'Merci bien. ' + greetings )
-					},
-					terminus: function ( greetings, terms, ignite, callback ) {
-						console.log('TERMS::', terms)
-						callback( null, 'Merci bien. ' + greetings )
-					}
-				}
-
-				harcon.addicts( julie, {} )
-				harcon.addicts( marie, {} )
-
-				let app = connect()
-					.use( bodyParser.urlencoded( { extended: true } ) )
-					.use( bodyParser.json() )
-
-				let options = {
-					context: '/api',
-					logger: logger,
-					apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ]
-				}
-				let rester = Rest.create( options )
-				app.use( radiation.rester( rester ) )
-
-				server = http.createServer(app)
-
-				io = radiation.io( io.listen( server ) )
-
-				// harcon.addicts( julie ) harcon.addicts( marie )
-
-				socketClient = ioclient( 'http://localhost:8181/KingSocket' )
-				socketClient.on('connect', function (data) {
-					console.log('Connected to KingSocket')
-				} )
-				socketClient.on('mood', function (data) {
-					console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
-				} )
-				socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
-				socketJSONRPCClient.on('connect', function (data) {
-					console.log('Connected to RPCTwo')
-				} )
-				socketJSONRPCClient.on('mood', function (data) {
-					console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
-				} )
-
-				return harcon
 			} )
-			.then( function () {
-				let port = process.env.PORT || 8181
 
-				server.listen( port, function () {
-					console.log( 'Running on http://localhost:' + port)
-					done()
-				})
+			let app = connect()
+				.use( bodyParser.urlencoded( { extended: true } ) )
+				.use( bodyParser.json() )
+
+			let options = {
+				context: '/api',
+				logger: logger,
+				apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ]
+			}
+			let rester = Rest.create( options )
+			app.use( radiation.rester( rester ) )
+
+			server = http.createServer(app)
+
+			io = await radiation.io( io.listen( server ) )
+
+			socketClient = ioclient( 'http://localhost:8181/KingSocket' )
+			socketClient.on('connect', function (data) {
+				console.log('Connected to KingSocket')
 			} )
-			.catch(function (reason) {
-				return done(reason)
+			socketClient.on('mood', function (data) {
+				console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
 			} )
+			socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
+			socketJSONRPCClient.on('connect', function (data) {
+				console.log('Connected to RPCTwo')
+			} )
+			socketJSONRPCClient.on('mood', function (data) {
+				console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
+			} )
+
+
+			let port = process.env.PORT || 8181
+
+			server.listen( port, () => {
+				console.log( 'Running on http://localhost:' + port)
+			} )
+
+			await Proback.timeout(3000)
+		} catch (err) {
+			console.error( err )
+			assert.fail( err )
+		}
 	})
-
+	/*
 	describe('System checks', function () {
-		it('URIs', function (done) {
-			radiation.entityURIs( function ( err, uris ) {
-				console.log( 'entityURIs>>>>>', err, JSON.stringify(uris) )
-				done()
-			} )
+		it('URIs', async function () {
+			let uris = await radiation.entityURIs( )
+			// console.log( 'entityURIs>>>>>', JSON.stringify(uris) )
 		} )
 	} )
+
 	describe('Test Websocket calls', function () {
 		it('Division-less', function (done) {
 			let mID = clerobee.generate()
-			socketClient.emit('ignite', { id: mID, division: 'King', event: 'morning.wakeup', parameters: [ 'Helloka!' ] } )
+
+			socketClient.emit('ignite', { id: mID, division: 'King', event: 'greet.simple', parameters: [ 'Bonjour!', 'Salut!' ] } )
 			socketClient.on('success', function (data) {
 				if ( data.id === mID ) {
-					expect( data.result ).to.include( 'Thanks. Helloka!' )
+					expect( data.result ).to.eql( 'Bonjour!' )
 					done( )
 				}
 			})
 			socketClient.on('failure', function (data) {
-				if ( data.id === mID )
-					done( new Error(data) )
+				if ( data.id === mID ) {
+					done( new Error(data.message) )
+				}
 			})
 		})
-
 		it('Division-cared', function (done) {
 			let mID = clerobee.generate()
-			socketClient.emit('ignite', { id: mID, division: 'King.charming', event: 'morning.greetings', parameters: [ 'Szióka!' ] } )
+			socketClient.emit('ignite', { id: mID, division: 'King.maison.cache', event: 'Margot.alors', parameters: [ ] } )
 			socketClient.on('success', function (data) {
 				if ( data.id === mID ) {
-					expect( data.result ).to.include( 'Merci bien. Szióka!' )
+					expect( data.result ).to.eql( 'Oui?' )
 					done( )
 				}
 			})
@@ -187,13 +175,12 @@ describe('harcon-radiation', function () {
 					done( new Error(data) )
 			})
 		})
-
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
-			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: [ 'Bonjour!' ], id: mID } )
+			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ], id: mID } )
 			socketJSONRPCClient.on('success', function (data) {
 				if ( data.id === mID ) {
-					expect( data.result ).to.include( 'Thanks. Bonjour!' )
+					expect( data.result ).to.eql( [ 'Hi there!', 'My pleasure!' ] )
 					done( )
 				}
 			})
@@ -203,7 +190,9 @@ describe('harcon-radiation', function () {
 			})
 		})
 	})
+	*/
 
+	/*
 	describe('Test REST calls', function () {
 		it('Division-less', function (done) {
 			httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
@@ -317,8 +306,9 @@ describe('harcon-radiation', function () {
 			)
 		})
 	})
-
-	after(function (done) {
+	*/
+	after(function () {
+		/*
 		if ( socketClient )
 			socketClient.disconnect()
 		if ( socketJSONRPCClient )
@@ -332,5 +322,6 @@ describe('harcon-radiation', function () {
 			} )
 		else
 			done()
+		*/
 	})
 })

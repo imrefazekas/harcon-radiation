@@ -122,7 +122,7 @@ By sending the following JSON to the address, you can address the method _'termi
 Using Websockets is also straightforward. By default, the URI will be the name of your Harcon instance. You can override it by the following config:
 
 ```javascript
-	var radiation = new Radiation( harcon, { websocket: { socketPath: '/Socket' } } )
+	var radiation = new Radiation( harcon, { websocket: { harconPath: '/Socket' } } )
 ```
 
 Send packet to that address:
@@ -172,8 +172,8 @@ THe configuration file might define the following attribute:
 
 ```javascript
 assignSocket: function (event) {
-	return function ( err, res, socket, callback ) {
-		callback( err, res )
+	return function ( terms, res, socket ) {
+		return new Promise( resolve => resolve( res ) ) 
 	}
 }
 ```
@@ -183,15 +183,15 @@ You can extend this to inject your logic to mark sockets as below:
 
 ```javascript
 assignSocket: function (event) {
-	if (event === 'Julie.login')
-		return function ( err, name, socket, callback ) {
-			console.log('>>>>>>>>>>', err, name[0])
-			socket.name = name[0]
-			socket.join( name[0] )
-			callback( err, name )
-		}
-	return function ( err, res, socket, callback ) {
-		callback( err, res )
+	return function ( terms, name, socket ) {
+		return new Promise( (resolve, reject) => {
+			if (event === 'Julie.login') {
+				socket.name = name[0]
+				socket.join( name[0] )
+				resolve( name )
+			}
+			else resolve( res )
+		} )
 	}
 }
 ```
