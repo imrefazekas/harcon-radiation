@@ -18,7 +18,10 @@ let logger = Logger.createPinoLogger( { level: 'info' } )
 let harcon, radiation, server
 
 let Rest = require('connect-rest')
-let httphelper = Rest.httphelper()
+let httphelper = Rest.httphelper( {
+}, {
+	headers: {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}
+} )
 
 let io = require('socket.io')
 let ioclient = require('socket.io-client')
@@ -70,11 +73,21 @@ describe('harcon-radiation', function () {
 			} )
 			await radiation.init( )
 
-			await harcon.inflicterEntity.addict( null, 'peter', 'greet.*', function (greetings1, greetings2) {
-				return Proback.quicker('Hi there!')
+			await Proback.timeout(1000)
+
+			await harcon.inflicterEntity.addict( null, 'peter', 'greet.*', async function (greetings1, greetings2) {
+				return 'Hi there!'
 			} )
-			await harcon.inflicterEntity.addict( null, 'walter', 'greet.*', function (greetings1, greetings2) {
-				return Proback.quicker('My pleasure!')
+			await harcon.inflicterEntity.addict( null, 'walter', 'greet.*', async function (greetings1, greetings2) {
+				return 'My pleasure!'
+			} )
+			await harcon.inflicterEntity.addicts( {
+				name: 'Katie',
+				rest: true,
+				websocket: true,
+				terminus: async function (greetings, terms, ignite) {
+					return terms.request.headers.clientAddress
+				}
 			} )
 
 			await radiation.listen( {
@@ -102,7 +115,7 @@ describe('harcon-radiation', function () {
 				apiKeys: [ '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9' ]
 			}
 			let rester = Rest.create( options )
-			app.use( radiation.rester( rester ) )
+			app.use( await radiation.rester( rester ) )
 
 			server = http.createServer(app)
 
@@ -136,14 +149,15 @@ describe('harcon-radiation', function () {
 			assert.fail( err )
 		}
 	})
+
 	/*
 	describe('System checks', function () {
 		it('URIs', async function () {
 			let uris = await radiation.entityURIs( )
-			// console.log( 'entityURIs>>>>>', JSON.stringify(uris) )
+			console.log( 'entityURIs>>>>>', JSON.stringify(uris) )
 		} )
 	} )
-
+	*/
 	describe('Test Websocket calls', function () {
 		it('Division-less', function (done) {
 			let mID = clerobee.generate()
@@ -151,7 +165,7 @@ describe('harcon-radiation', function () {
 			socketClient.emit('ignite', { id: mID, division: 'King', event: 'greet.simple', parameters: [ 'Bonjour!', 'Salut!' ] } )
 			socketClient.on('success', function (data) {
 				if ( data.id === mID ) {
-					expect( data.result ).to.eql( 'Bonjour!' )
+					expect( data.result ).to.include( 'Bonjour!', 'Hi there!', 'My pleasure!' )
 					done( )
 				}
 			})
@@ -180,7 +194,7 @@ describe('harcon-radiation', function () {
 			socketJSONRPCClient.emit('ignite', { jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ], id: mID } )
 			socketJSONRPCClient.on('success', function (data) {
 				if ( data.id === mID ) {
-					expect( data.result ).to.eql( [ 'Hi there!', 'My pleasure!' ] )
+					expect( data.result ).to.include( 'Hi there!', 'My pleasure!' )
 					done( )
 				}
 			})
@@ -190,138 +204,90 @@ describe('harcon-radiation', function () {
 			})
 		})
 	})
-	*/
+
+	describe('Test REST calls', function () {
+		it('Division-less', async function () {
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/King/morning/wakeup', null, { params: [ ] } )
+				should.exist(result.result)
+				should.equal(result.status.statusCode, 200)
+				expect( result.result ).to.include( 'Hi there!', 'My pleasure!' )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Division-cared', async function () {
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/King/click/greet/simple', null, { params: ['Szióka!', 'Ciao'] } )
+				should.exist(result.result)
+				should.equal(result.status.statusCode, 200)
+				expect( result.result ).to.include( 'Hi there!', 'My pleasure!', 'Pas du tout!', 'Bonjour!' )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Division-cared with terms', async function () {
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/King/Katie/terminus', null, { params: ['Szióka!'] } )
+				should.exist(result.result)
+				should.equal(result.status.statusCode, 200)
+				expect( result.result ).to.eql( '::ffff:127.0.0.1' )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Harcon-RPC', async function () {
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/Harcon', null, { division: 'King.click', event: 'Claire.jolie', params: ['Szióka!'] } )
+				should.exist(result)
+				should.equal(result.status.statusCode, 200)
+				expect( result.result ).to.eql( 'Merci' )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('JSON-RPC 2.0', async function () {
+			let mID = clerobee.generate()
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/RPCTwo', null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'Julie.rever', params: ['Szióka!'] } )
+				should.exist( result.result )
+				should.equal(result.status.statusCode, 200)
+				expect( result.result.result ).to.equal( 'Non, Mais non!' )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Test Revoke', async function () {
+			await harcon.detracts( { name: 'Julie' } )
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/King/morning/wakeup2', null, { params: ['Helloka!'] } )
+				console.log('>>>>>>>>>>', result)
+				expect( result.status.statusCode ).to.equal( 404 )
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Mimic-test', async function () {
+			let invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' )
+			try {
+				await httphelper.post( 'http://localhost:8181/King/Mimesis/mimic', null, { params: [ invisibleDef ] } )
+				let result = await httphelper.post( 'http://localhost:8181/King/Invisible/greet', null, { params: [ 'Hello!' ] } )
+				expect( result.result ).to.include( 'Hello!' )
+			} catch (err) { assert.fail( err ) }
+		})
+	})
 
 	/*
-	describe('Test REST calls', function () {
-		it('Division-less', function (done) {
-			httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
-				function (err, result, status) {
-					should.not.exist(err)
-					should.exist(result)
-
-					expect( result ).to.include( 'Thanks. Helloka!' )
-
-					done( )
-				}
-			)
-		})
-
-		it('Division-cared', function (done) {
-			httphelper.generalCall( 'http://localhost:8181/King/charming/morning/greetings', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
-				function (err, result, status) {
-					should.not.exist(err)
-					should.exist(result)
-
-					expect( result ).to.include( 'Merci bien. Szióka!' )
-
-					done( )
-				}
-			)
-		})
-
-		it('Division-cared with terms', function (done) {
-			httphelper.generalCall( 'http://localhost:8181/King/charming/morning/terminus', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Szióka!'] }, 'application/json', logger,
-				function (err, result, status) {
-					should.not.exist(err)
-					should.exist(result)
-
-					expect( result ).to.include( 'Merci bien. Szióka!' )
-
-					done( )
-				}
-			)
-		})
-
-		it('Harcon-RPC', function (done) {
-			httphelper.generalCall( 'http://localhost:8181/Harcon', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }, 'application/json', logger,
-				function (err, result, status) {
-					should.not.exist(err)
-					should.exist(result)
-
-					expect( result ).to.include( 'Merci bien. Szióka!' )
-
-					done( )
-				}
-			)
-		})
-
-		it('JSON-RPC 2.0', function (done) {
-			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: ['Szióka!'] }, 'application/json', logger,
-				function (err, data, status) {
-					should.not.exist(err)
-					should.exist(data)
-					expect( data.result ).to.equal( 'Thanks. Szióka!' )
-
-					done( )
-				}
-			)
-		})
-
-		// unhandler promise appeared ...
-		it('Test Revoke', function (done) {
-			harcon.detracts( julie )
-				.then( () => {
-					httphelper.generalCall( 'http://localhost:8181/King/morning/wakeup2', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: ['Helloka!'] }, 'application/json', logger,
-						function (err, result, status) {
-							should.not.exist( err )
-							expect( status.statusCode ).to.equal( 404 )
-							done( )
-						}
-					)
-				} )
-				.catch( (reason) => { done(reason) } )
-		})
-
-		it('Mimic-test', function (done) {
-			let invisibleDef = fs.readFileSync( path.join(__dirname, 'Invisible.js'), 'utf8' )
-			httphelper.generalCall( 'http://localhost:8181/King/Mimesis/mimic', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ invisibleDef ] }, 'application/json', logger, function (err, result, status) {
-				console.log('.............', err, result, status)
-
-				should.not.exist(err)
-				httphelper.generalCall( 'http://localhost:8181/King/Invisible/greet', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { params: [ 'Hello!' ] }, 'application/json', logger, function (err, result, status) {
-					console.log('.............', err, result, status)
-					should.not.exist(err)
-					expect( result ).to.include( 'Hello!' )
-					done( )
-				} )
-
-			} )
-		})
-	})
-
 	describe('Test Publishing calls', function () {
-		it('Calling Automata', function ( done ) {
+		it('Calling Automata', async function ( ) {
 			let mID = clerobee.generate()
-			httphelper.generalCall( 'http://localhost:8181/RPCTwo', 'POST', {'x-api-key': '849b7648-14b8-4154-9ef2-8d1dc4c2b7e9'}, null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'julie.wakeup', params: [ 'Bonjour!' ] }, 'application/json', logger,
-				function (err, result, status) {
-					should.not.exist(err)
-					should.exist(result)
-
-					// expect( result ).to.include( 'Done.' )
-
-					done( )
-				}
-			)
+			try {
+				let result = await httphelper.post( 'http://localhost:8181/RPCTwo', null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ] } )
+				console.log('-------------------', result)
+				should.exist(result)
+			} catch (err) { assert.fail( err ) }
 		})
 	})
 	*/
-	after(function () {
-		/*
+
+	after( async function () {
 		if ( socketClient )
 			socketClient.disconnect()
 		if ( socketJSONRPCClient )
 			socketJSONRPCClient.disconnect()
 		if ( harcon )
-			harcon.close()
+			await harcon.close()
 		if ( server )
 			server.close( function () {
 				console.log('Node stopped')
-				done()
 			} )
-		else
-			done()
-		*/
 	})
 })

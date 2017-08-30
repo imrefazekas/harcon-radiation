@@ -2,7 +2,7 @@ module.exports = {
 	name: 'Invisible',
 	rest: true,
 	websocket: true,
-	greet: function ( message, terms, ignite, callback ) {
-		callback( null, message )
+	greet: async function ( message, terms, ignite ) {
+		return message
 	}
 }
