@@ -1,10 +1,10 @@
-Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/harcon) library to automatically expose selected entities through REST and/or Websocket.
+Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/harcon) library to automatically expose services through REST and/or Websocket using Harcon and JsonRPC message formats.
 
 [![NPM](https://nodei.co/npm/harcon-radiation.png)](https://nodei.co/npm/harcon-radiation/)
 [![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
 ================
-[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is a small, yet handy tool extending the [harcon](https://github.com/imrefazekas/harcon) library to provide a [REST](http://en.wikipedia.org/wiki/Representational_state_transfer)-, and [Websocket](http://en.wikipedia.org/wiki/WebSocket)-based interface to it.
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is a small tool extending the [harcon](https://github.com/imrefazekas/harcon) library to provide a [REST](http://en.wikipedia.org/wiki/Representational_state_transfer)-, and [Websocket](http://en.wikipedia.org/wiki/WebSocket)-based interface. Following your configuration, your services within your entities will be exposed through REST / Websocket automatically.
 
 Every time you publish or revoke an object-based entity, the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) reacts to the changes and maintain the interfaces transparently.
 
@@ -13,10 +13,12 @@ Every time you publish or revoke an object-based entity, the [harcon-radiation](
 $ npm install harcon-radiation
 
 ## Quick setup
+
 ```javascript
 var harcon = new Harcon( { ... } )
-harcon.init( function (err) {} )
-var radiation = new Radiation( harcon )
+await harcon.init( function (err) {} )
+var radiation = new Radiation( harcon, { ... } )
+await radiation.init( )
 var rest = require('connect-rest')
 var connect = require('connect')
 ...
@@ -32,8 +34,8 @@ harcon.addicts( {
 	context: 'book',
 	rest: true,
 	websocket: true,
-	log: function( data, callback ){
-		callback( null, 'Done.' )
+	log: async function( data ){
+		return 'Done.'
 	}
 } )
 ```
@@ -166,14 +168,14 @@ Note: Considering the nature of the JSON-RPC 2.0, this level of service is avail
 ## Distinguish websocket clients
 
 By default, the function _'shifted'_ emits message to all listeners connected. Some business cases desire more focused approach, targeting a defined group of clients.
-During the _'ignite'_ message processing, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to have a callback, when the results are about to send back to the caller.
+During the _'ignite'_ message processing, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to have a injected service which is performed when the results are about to send back to the caller.
 
 THe configuration file might define the following attribute:
 
 ```javascript
 assignSocket: function (event) {
-	return function ( terms, res, socket ) {
-		return new Promise( resolve => resolve( res ) ) 
+	return async function ( terms, res, socket ) {
+		return res
 	}
 }
 ```
@@ -183,15 +185,13 @@ You can extend this to inject your logic to mark sockets as below:
 
 ```javascript
 assignSocket: function (event) {
-	return function ( terms, name, socket ) {
-		return new Promise( (resolve, reject) => {
-			if (event === 'Julie.login') {
-				socket.name = name[0]
-				socket.join( name[0] )
-				resolve( name )
-			}
-			else resolve( res )
-		} )
+	return async function ( terms, name, socket ) {
+		if (event === 'Julie.login') {
+			socket.name = name[0]
+			socket.join( name[0] )
+			resolve( name )
+		}
+		else resolve( res )
 	}
 }
 ```
@@ -231,8 +231,8 @@ harcon.addicts( {
 	rest: true,
 	security: {
 		protector: function(service){
-			return function( req, res, pathname, path, callback ){
-				callback()
+			return async function( req, res, pathname, path ){
+				throw new Error('Something is fishy')
 			}
 		}
 	}
@@ -265,7 +265,7 @@ Should that function return 'true', the incoming message should be rejected with
 Nimesis is a built-in entity of [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) providing one single service:
 
 ```javascript
-mimic: function( entityDef ... callback ){
+mimic: function( entityDef ){
 ```
 
 It accepts harcon entity definitions as string and converts them to entity definitions then publishes it according its configuration. By default, all services will be exposed through REST and Websockets as well.
@@ -304,12 +304,3 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ## Bugs
 
 See <https://github.com/imrefazekas/harcon-radiation/issues>.
-
-## Changelog
-
-- 1.6: JSON-RPC support added
-- 1.1-1.4: refactoring
-- 1.0.0 : moving to harcon v2
-- 0.8.0 : addressing via names added
-- 0.5.0 : refactoring and moving to harcon v1
-- 0.1.0 : initial release
