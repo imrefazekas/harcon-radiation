@@ -8,6 +8,10 @@ Harcon-Radiation - An extension to the [harcon](https://github.com/imrefazekas/h
 
 Every time you publish or revoke an object-based entity, the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) reacts to the changes and maintain the interfaces transparently.
 
+!Note: From version 8.0.0, harcon supports only Node v8 and await functions. For callback-based version please use v7 or below.
+
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+
 ## Installation
 
 $ npm install harcon-radiation
