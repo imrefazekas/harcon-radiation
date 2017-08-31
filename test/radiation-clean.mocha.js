@@ -121,26 +121,25 @@ describe('harcon-radiation', function () {
 
 			io = await radiation.io( io.listen( server ) )
 
-			socketClient = ioclient( 'http://localhost:8181/KingSocket' )
+			let port = process.env.PORT || 8181
+
+			server.listen( port, () => {
+				console.log( 'Running on http://localhost:' + port)
+			} )
+
+			socketClient = ioclient( 'http://localhost:' + port + '/KingSocket' )
 			socketClient.on('connect', function (data) {
 				console.log('Connected to KingSocket')
 			} )
 			socketClient.on('mood', function (data) {
 				console.log('MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
 			} )
-			socketJSONRPCClient = ioclient( 'http://localhost:8181/RPCTwo' )
+			socketJSONRPCClient = ioclient( 'http://localhost:' + port + '/RPCTwo' )
 			socketJSONRPCClient.on('connect', function (data) {
 				console.log('Connected to RPCTwo')
 			} )
 			socketJSONRPCClient.on('mood', function (data) {
 				console.log('Json-Rpc MOOODDDDD >>>>>>>>>>>>>> Shifted:::', data)
-			} )
-
-
-			let port = process.env.PORT || 8181
-
-			server.listen( port, () => {
-				console.log( 'Running on http://localhost:' + port)
 			} )
 
 			await Proback.timeout(3000)
@@ -150,14 +149,13 @@ describe('harcon-radiation', function () {
 		}
 	})
 
-	/*
 	describe('System checks', function () {
 		it('URIs', async function () {
 			let uris = await radiation.entityURIs( )
 			console.log( 'entityURIs>>>>>', JSON.stringify(uris) )
 		} )
 	} )
-	*/
+
 	describe('Test Websocket calls', function () {
 		it('Division-less', function (done) {
 			let mID = clerobee.generate()
@@ -251,7 +249,6 @@ describe('harcon-radiation', function () {
 			await harcon.detracts( { name: 'Julie' } )
 			try {
 				let result = await httphelper.post( 'http://localhost:8181/King/morning/wakeup2', null, { params: ['Helloka!'] } )
-				console.log('>>>>>>>>>>', result)
 				expect( result.status.statusCode ).to.equal( 404 )
 			} catch (err) { assert.fail( err ) }
 		})
@@ -264,19 +261,6 @@ describe('harcon-radiation', function () {
 			} catch (err) { assert.fail( err ) }
 		})
 	})
-
-	/*
-	describe('Test Publishing calls', function () {
-		it('Calling Automata', async function ( ) {
-			let mID = clerobee.generate()
-			try {
-				let result = await httphelper.post( 'http://localhost:8181/RPCTwo', null, { id: mID, jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ] } )
-				console.log('-------------------', result)
-				should.exist(result)
-			} catch (err) { assert.fail( err ) }
-		})
-	})
-	*/
 
 	after( async function () {
 		if ( socketClient )
