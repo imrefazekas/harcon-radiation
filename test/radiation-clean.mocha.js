@@ -61,7 +61,8 @@ describe('harcon-radiation', function () {
 						timeout: 100
 					}
 				},
-				marie: {greetings: 'Hi!'}
+				marie: {greetings: 'Hi!'},
+				Lina: { situation: 'steady' }
 			} )
 			harcon = await harcon.init()
 			radiation = new Radiation( harcon, {
