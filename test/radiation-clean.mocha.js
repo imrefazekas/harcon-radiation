@@ -26,6 +26,7 @@ let httphelper = Rest.httphelper( {
 let io = require('socket.io')
 let ioclient = require('socket.io-client')
 let socketClient, socketJSONRPCClient
+let port
 
 let fs = require('fs')
 let path = require('path')
@@ -122,7 +123,7 @@ describe('harcon-radiation', function () {
 
 			io = await radiation.io( io.listen( server ) )
 
-			let port = process.env.PORT || 8181
+			port = process.env.PORT || 8181
 
 			server.listen( port, () => {
 				console.log( 'Running on http://localhost:' + port)
@@ -156,6 +157,24 @@ describe('harcon-radiation', function () {
 			console.log( 'entityURIs>>>>>', JSON.stringify(uris) )
 		} )
 	} )
+
+	describe('parallelism', function () {
+		it('Alize silent', async function () {
+			this.timeout(15000)
+			await Proback.timeout( 5000 )
+			for (let i = 1; i <= 10; ++i) {
+				await Proback.timeout( i * 25 )
+
+				let time = Date.now()
+				httphelper.post( 'http://localhost:' + port + '/Harcon', null, { division: 'King', event: 'Alizee.silent', params: [ ] } ).then( (res) => {
+					console.log( (Date.now() - time) + ' :: ' + res )
+				} ).catch( (reason) => {
+					console.log( (Date.now() - time) + ' !! ' + reason )
+				} )
+			}
+			await Proback.timeout( 5000 )
+		})
+	})
 
 	describe('Test Websocket calls', function () {
 		it('Division-less', function (done) {

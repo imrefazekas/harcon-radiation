@@ -24,9 +24,9 @@
   "main": "./lib/harcon-radiation.js",
   "dependencies": {
     "assign.js": "^2.8.0",
-    "clerobee": "^0.9.6",
+    "clerobee": "^0.9.7",
     "connect-rest": "^3.0.16",
-    "harcon": "^8.8.1",
+    "harcon": "^8.8.2",
     "isa.js": "^2.2.1",
     "proback.js": "^2.1.6",
     "socket.io": "~2"
@@ -38,9 +38,9 @@
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "socket.io-client": "~2",
-    "pino": "^4.16.0",
+    "pino": "^4.16.1",
     "watch": "^1.0.2",
-    "webpack": "^4.5.0"
+    "webpack": "^4.6.0"
   },
   "engines": {
     "node": ">= 8.0.0"
