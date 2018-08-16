@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "8.8.4",
+  "version": "8.8.6",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -25,8 +25,8 @@
   "dependencies": {
     "assign.js": "^2.8.5",
     "clerobee": "^0.9.7",
-    "connect-rest": "^3.0.17",
-    "harcon": "^8.8.3",
+    "connect-rest": "^3.0.18",
+    "harcon": "^8.8.6",
     "isa.js": "^2.2.2",
     "proback.js": "^2.1.7",
     "socket.io": "^2.1.1"
@@ -38,9 +38,10 @@
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "socket.io-client": "~2",
-    "pino": "^4.17.6",
+    "pino": "^5.1.0",
+    "pino-pretty": "^2.0.1",
     "watch": "^1.0.2",
-    "webpack": "^4.16.3"
+    "webpack": "^4.16.5"
   },
   "engines": {
     "node": ">= 8.0.0"
