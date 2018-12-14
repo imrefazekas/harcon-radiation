@@ -25,23 +25,29 @@
   "dependencies": {
     "assign.js": "^2.8.7",
     "clerobee": "^0.9.8",
-    "connect-rest": "^3.0.29",
-    "harcon": "^8.9.11",
+    "fastify": "~1",
+    "fastify-compress": "^0.7.1",
+    "fastify-healthcheck": "^0.2.0",
+    "fastify-helmet": "^3.0.0",
+    "fastify-jwt": "^0.7.0",
+    "fastify-multipart": "^0.5.1",
+    "fastify-plugin": "^1.3.0",
+    "fastify-rate-limit": "^1.0.0",
+    "fastify-static": "^1.0.0",
+    "fastify-ws": "^1.0.0",
+    "harcon": "^8.9.12",
     "isa.js": "^2.2.3",
-    "proback.js": "^2.1.8",
-    "socket.io": "^2.1.1"
+    "proback.js": "^2.1.8"
   },
   "devDependencies": {
-    "body-parser": "^1.18.3",
     "chai": "^4.2.0",
-    "connect": "^3.6.6",
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
-    "socket.io-client": "~2",
-    "pino": "^5.8.1",
-    "pino-pretty": "^2.2.3",
+    "pino": "~5",
+    "pino-pretty": "~2",
+    "request": "^2.88.0",
     "watch": "^1.0.2",
-    "webpack": "^4.26.0"
+    "ws": "^6.1.2"
   },
   "engines": {
     "node": ">= 8.0.0"
