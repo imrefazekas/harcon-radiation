@@ -105,7 +105,8 @@ server.init = async function (callback) {
 		self.logger.info( `Server is listening on ${fastify.server.address().port}` )
 	}
 
-	console.log( '\n\n\n\n------------', fastify.printRoutes())
+	if (self.config.server.printRoutes)
+		self.logger.info( 'Routes: ' + fastify.printRoutes())
 
 	return self
 }

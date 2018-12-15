@@ -14,6 +14,7 @@ module.exports = {
 			millieu: config.millieu || { },
 
 			server: {
+				printRoutes: false,
 				port: process.env.NODE_SERVER_PORT || 8080,
 				ip: process.env.NODE_SERVER_IP || '0.0.0.0',
 				active: true,

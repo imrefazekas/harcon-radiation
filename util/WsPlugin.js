@@ -1,39 +1,62 @@
 const fp = require('fastify-plugin')
 const WebSocket = require('ws')
 
+const url = require('url')
+
 module.exports = {
-	addWSServer: function (path, handler) {
+	addWSServer: function (paths) {
 		return fp((fastify, opts, next) => {
 			const lib = opts.library || 'ws'
 
 			if (lib !== 'ws' && lib !== 'uws') return next(new Error('Invalid "library" option'))
 
-			let wss = new WebSocket.Server( {
-				server: fastify.server,
-				path: path
-			} )
+			let wssServers = []
+			for (let path in paths)
+				wssServers[path] = new WebSocket.Server({ noServer: true })
 
-			fastify.decorate('ws', wss)
+			fastify.server.on('upgrade', (request, socket, head) => {
+				const pathname = url.parse(request.url).pathname
 
-			wss.broadcast = function broadcast (data) {
-				wss.clients.forEach(function each (client) {
-					if (client.readyState === WebSocket.OPEN) {
-						client.send(data)
-					}
+				if ( wssServers[pathname] ) {
+					wssServers[pathname].handleUpgrade(request, socket, head, (ws) => {
+						wssServers[pathname].emit('connection', ws)
+					})
+				} else {
+					socket.destroy()
+				}
+			})
+
+			fastify.decorate('ws', {
+				broadcast: async function broadcast (data, identifySockets, target) {
+					for (let path in wssServers)
+						await wssServers[ path ].broadcast( data, identifySockets, target )
+				}
+			})
+
+			for (let path in wssServers) {
+				let wss = wssServers[ path ]
+				wss.broadcast = async function broadcast (data, identifySockets, target) {
+					let sockets = await identifySockets( wss.clients, target )
+					sockets.forEach(function each (client) {
+						if (client.readyState === WebSocket.OPEN) {
+							client.send(data)
+						}
+					})
+				}
+
+				wss.on('connection', (socket) => {
+					console.log('Client connected.')
+
+					socket.on('message', (msg) => {
+						paths[path](socket, msg).catch(console.error)
+					})
+					socket.on('close', () => {})
+				})
+
+				fastify.addHook('onClose', (fastify, done) => {
+					return wss.close(done)
 				})
 			}
-			wss.on('connection', (socket) => {
-				console.log('Client connected.')
-
-				socket.on('message', (msg) => {
-					handler(socket, msg).catch(console.error)
-				})
-				socket.on('close', () => {})
-			})
-
-			fastify.addHook('onClose', (fastify, done) => {
-				return fastify.ws.close(done)
-			})
 
 			next()
 		}, {

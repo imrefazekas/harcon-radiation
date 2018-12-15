@@ -9,8 +9,7 @@ let server
 
 const request = require('request')
 const WebSocket = require('ws')
-// const wsEvents = require('ws-events')
-let socketClient
+let socketClient, socketJsonrpcClient
 
 let fs = require('fs')
 let path = require('path')
@@ -75,18 +74,18 @@ describe('harcon-radiation', function () {
 
 			await Proback.timeout(1000)
 
-			await server.harcon.inflicterEntity.addict( null, 'peter', 'greet.*', async function (greetings1, greetings2) {
+			await server.harcon.inflicterEntity.deploy( null, 'peter', 'greet.*', async function (greetings1, greetings2) {
 				return 'Hi there!'
 			} )
-			await server.harcon.inflicterEntity.addict( null, 'walter', 'greet.*', async function (greetings1, greetings2) {
+			await server.harcon.inflicterEntity.deploy( null, 'walter', 'greet.*', async function (greetings1, greetings2) {
 				return 'My pleasure!'
 			} )
-			await server.harcon.inflicterEntity.addicts( {
+			await server.harcon.inflicterEntity.deploy( {
 				name: 'Katie',
 				rest: true,
 				websocket: true,
-				terminus: async function (greetings, terms, ignite) {
-					return terms.request.remoteAddress
+				terminus: async function (greetings, terms) {
+					return terms.clientRequest.remoteAddress
 				}
 			} )
 
@@ -106,11 +105,20 @@ describe('harcon-radiation', function () {
 			} )
 
 			socketClient = new WebSocket('ws://localhost:8080/KingSocket')
-			// socketClient = wsEvents( new WebSocket('ws://localhost:8080/KingSocket') )
 			socketClient.on('open', function open () {
 				console.log('Connected to KingSocket')
 			})
 			socketClient.on('message', function incoming (data) {
+				data = JSON.parse( data )
+				if ( data.state )
+					console.log('MOOOOOOODD >>>>>>>>>>>>>> ', data)
+			})
+
+			socketJsonrpcClient = new WebSocket('ws://localhost:8080/RPCTwo')
+			socketJsonrpcClient.on('open', function open () {
+				console.log('Connected to KingSocket')
+			})
+			socketJsonrpcClient.on('message', function incoming (data) {
 				data = JSON.parse( data )
 				if ( data.state )
 					console.log('MOOOOOOODD >>>>>>>>>>>>>> ', data)
@@ -176,8 +184,8 @@ describe('harcon-radiation', function () {
 		})
 		it('JSON-RPC 2.0', function (done) {
 			let mID = clerobee.generate()
-			socketClient.send( JSON.stringify( { jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ], id: mID } ) )
-			socketClient.on('message', function (data) {
+			socketJsonrpcClient.send( JSON.stringify( { jsonrpc: '2.0', division: 'King', method: 'Julie.wakeup', params: [ ], id: mID } ) )
+			socketJsonrpcClient.on('message', function (data) {
 				data = JSON.parse( data )
 				if ( data.error )
 					done( new Error(data.error) )
@@ -232,7 +240,7 @@ describe('harcon-radiation', function () {
 			} catch (err) { assert.fail( err ) }
 		})
 		it('Test Revoke', async function () {
-			await server.harcon.detracts( { name: 'Julie' } )
+			await server.harcon.conclude( { name: 'Julie' } )
 			try {
 				let result = await post( 'http://localhost:8080/King/morning/wakeup', { params: ['Helloka!'] } )
 				expect( result.response.statusCode ).to.equal( 500 )
@@ -256,5 +264,8 @@ describe('harcon-radiation', function () {
 
 		if (socketClient)
 			socketClient.close()
+
+		if (socketJsonrpcClient)
+			socketJsonrpcClient.close()
 	})
 })

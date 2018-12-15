@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "8.9.14",
+  "version": "9.0.0",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -35,7 +35,7 @@
     "fastify-rate-limit": "^1.0.0",
     "fastify-static": "^1.0.0",
     "fastify-ws": "^1.0.0",
-    "harcon": "^8.9.12",
+    "harcon": "^9.0.1",
     "isa.js": "^2.2.3",
     "proback.js": "^2.1.8"
   },

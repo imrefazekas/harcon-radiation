@@ -33,7 +33,7 @@ app.use( await radiation.rester( rest, options ) ) // Activates the REST service
 server = http.createServer(app)
 io = radiation.io( io.listen( server ) ) // Activates the Websocket services
 ...
-harcon.addicts( {
+harcon.deploy( {
 	name: 'julie',
 	context: 'book',
 	rest: true,
@@ -177,10 +177,8 @@ During the _'ignite'_ message processing, [harcon-radiation](https://github.com/
 THe configuration file might define the following attribute:
 
 ```javascript
-assignSocket: function (event) {
-	return async function ( terms, res, socket ) {
-		return res
-	}
+assignSocket: async function (event, terms, res, socket ) {
+	return 'ok'
 }
 ```
 
@@ -230,7 +228,7 @@ Your components might possess a __protector__ function which should retrieve [pr
 The service parameter can be used to differentiate the different security aspects your services cover.
 
 ```javascript
-harcon.addicts( {
+harcon.deploy( {
 	name: 'julie',
 	rest: true,
 	security: {
