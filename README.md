@@ -19,71 +19,68 @@ $ npm install harcon-radiation
 ## Quick setup
 
 ```javascript
-var harcon = new Harcon( { ... } )
-await harcon.init( function (err) {} )
-var radiation = new Radiation( harcon, { ... } )
-await radiation.init( )
-var rest = require('connect-rest')
-var connect = require('connect')
-...
-var app = connect()
-...
-app.use( await radiation.rester( rest, options ) ) // Activates the REST services
-...
-server = http.createServer(app)
-io = radiation.io( io.listen( server ) ) // Activates the Websocket services
-...
-harcon.deploy( {
-	name: 'julie',
-	context: 'book',
-	rest: true,
-	websocket: true,
-	log: async function( data ){
-		return 'Done.'
-	}
+let serverConfig = {}
+let harconConfig = {}
+let radiationConfig = {}
+let Server = require('harcon-radiation/util/Server')
+let server = server = new Server( {
+	name: 'King',
+	server: serverConfig,
+	harcon: harconConfig,
+	radiation: radiationConfig
 } )
+await server.init()
 ```
-The example shows how you can attach the __radiation__ to a connect/express instance and link to your _harcon_ instance. You can activate the REST and Websocket interfaces.
-Any object-based entities published to [harcon](https://github.com/imrefazekas/harcon) possessing attributes __'rest'__ and __'websocket'__ will be exposed through those interfaces automatically.
+
+The example shows how you can create a server instance easily. The server is a [fastify](https://www.fastify.io) instance using several built-in plugins like [fastify-ws](https://github.com/gj/fastify-ws) providing websocket support.
+The server initiates the [harcon](https://github.com/imrefazekas/harcon) and the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) as well as configured.
+
+The main idea is to expose any object-based entities published to [harcon](https://github.com/imrefazekas/harcon) possessing attributes __'rest'__ and __'websocket'__ through those REST and / or Websocket interfaces automatically without any action required.
 
 
 ## Regulate publishing process
 
-The default behavior is to publish all services. However, one can define rules to make exceptions. By setting the option _hideInnerServices_, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) will hide inner services and won't publish them
+The default behavior is to publish all user-defined services. However, one can define rules to make exceptions. By setting the option _hideInnerServices_, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) will hide inner services and won't publish them
 
 ```javascript
-var radiation = new Radiation( harcon, { hideInnerServices: true } )
+var radiationConfig = { ..., hideInnerServices: true }
 ```
 
-[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) ignores a service in 2 cases:
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) can be configured in 2 ways:
 
-- its name starts with a given prefix
+- to define a prefix string
 ```javascript
-	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesPrefix: '_' } )
+var radiationConfig = { ..., hideInnerServices: true, innerServicesPrefix: '_' } )
 ```
 
-- its name matches to a given pattern
+- to define a function evaluating the name of the functions
 ```javascript
-	var radiation = new Radiation( harcon, { hideInnerServices: true, innerServicesFn: function(name){
-		return name.startsWith('inner') || name.startsWith('sys')
-	} } )
+var radiationConfig = { ..., hideInnerServices: true, innerServicesFn: function(name){
+	return name.startsWith('inner') || name.startsWith('sys')
+} } )
 ```
+
 
 ## Call REST
 
-There are 3 options to expose services through REST-like interface:
+There are 3 ways to expose services through REST:
 
-- RESTful: each service will be exposed on different URI according the name of the division, context/entity and service...
-- [JSON-RPC 2.0](http://www.jsonrpc.org/specification): one single URI acccepting JSON-RPC 2.0 calls
-- Harcon RPC: one single URI accepting a harcon JSON
+- RESTful: each service will be exposed on different URI according the name of the division, context/entity and service. The general URI pattern is __/{division}/{entity}/{event}__. Of course, each part can be a qualified name depending on your harcon orchestration.
+- [JSON-RPC 2.0](http://www.jsonrpc.org/specification): one single URI acccepting JSON-RPC 2.0 calls as specification defines.
+- Harcon RPC: one single URI accepting a harcon JSON messages
 
-By default, option 1 is turned on, and the rest options are passive.
+By default, option 3 is active, option 1 and 2 are passive.
 
 
 #### RESTful
 
-[RESTful](https://en.wikipedia.org/wiki/Representational_state_transfer) interface means a POST service using the  addressing logic implemented in harcon.
-To address a service exposed, you have to compose a URI using the name of the division[, context], entity and service. By calling the following URI:
+The following settings will activate the Harcon-RPC option on URI _'/Harcon'_:
+
+```javascript
+var radiationConfig = { ..., { rest: { ignoreRESTPattern: false } } )
+```
+
+[RESTful](https://en.wikipedia.org/wiki/Representational_state_transfer) interface accepts only POST messages. To address a service exposed, you have to compose a URI following the pattern __/{division}/{entity}/{event}__. For example:
 
 	post -> 'http://localhost:8080/Harcon/book/log'
 
@@ -92,7 +89,7 @@ with a body of
 	{ params: [ 'Hello!'] }
 
 will address the service _'log'_ of the component _'book'_ in the division _'Harcon'_.
-The of the entity will be sent as JSON.
+The answer of the entity will be sent back as JSON.
 
 
 #### JSON-RPC 2.0
@@ -100,10 +97,10 @@ The of the entity will be sent as JSON.
 [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) supports JSON-RPC 2.0 if you create the instace as follows:
 
 ```javascript
-	var radiation = new Radiation( harcon, rest: { jsonrpcPath: '/RPCTwo' } )
+var radiationConfig = { ..., rest: { jsonrpcPath: '/RPCTwo' } )
 ```
 
-This will accept POST request on the path _'/RPCTwo'_ respecting the JSON-RPC 2.0 standard.
+This will accept POST request on the path _'/RPCTwo'_ respecting the [JSON-RPC 2.0 standard](https://www.jsonrpc.org/specification).
 
 Note: be aware the limitations of JSON-RPC. It does not support orchestration like divisions or contexts, therefore addressing should be limited to __entityname.service__, subdomains/subcontexts cannot be addressed.
 
@@ -113,7 +110,7 @@ Note: be aware the limitations of JSON-RPC. It does not support orchestration li
 The following settings will activate the Harcon-RPC option on URI _'/Harcon'_:
 
 ```javascript
-	var radiation = new Radiation( harcon, { rest: { harconrpcPath: '/Harcon' } } )
+var radiationConfig = { ..., { rest: { harconrpcPath: '/Harcon' } } )
 ```
 
 By sending the following JSON to the address, you can address the method _'terminus'_ of the entity _'marie'_ in the division _'King.charming'_:
@@ -125,56 +122,83 @@ By sending the following JSON to the address, you can address the method _'termi
 
 ## Websockets
 
-Using Websockets is also straightforward. By default, the URI will be the name of your Harcon instance. You can override it by the following config:
+Using Websockets is also straightforward. The following config activates the interfaces accepting harcon JSON messages.
 
 ```javascript
-	var radiation = new Radiation( harcon, { websocket: { harconPath: '/Socket' } } )
+var radiationConfig = { ..., { websocket: { harconPath: '/Socket' } } )
 ```
 
-Send packet to that address:
+Send packet to that interface:
 
-	var socket = ioclient( 'http://localhost:8080/Socket' )
-	socket.emit('ignite', { id: '10', division: 'Inflicter', event: 'book.log', params: [ 'Helloka!' ] } )
+```javascript
+const WebSocket = require('ws')
+socketClient = new WebSocket('ws://localhost:8080/KingSocket')
+...
+socketClient.send( JSON.stringify( { id: mID, division: 'King', event: 'greet.simple', parameters: [ 'Bonjour!', 'Salut!' ] } ) )
+socketClient.on('message', function (data) {
+	data = JSON.parse( data )
+	if ( data.error )
+		console.error( new Error(data.error) )
+	if ( data.id === mID )
+		console.log( data.result )
+})
+```
 
-This will send the JS object to the room 'Socket'. By sending an __'ignite'__ message and passing the communication object you want to deliver will call the function.
-
-The response will be sent as _'done'_ or _'error'_ message depending on the result.
-
-Note: The ID is highly recommended to be passed to differentiate the incoming answer packets.
+This will send a JSON message to the server performing the service _simple_ of the entity _greet_ in division _King_.
+The response will be sent back.
+Note: An ID is highly recommended to be passed to differentiate the incoming answer packets.
 
 
 #### JSON-RPC 2.0 over Websocket
 
-This service can be turned on by the following configuration:
+The following config activates the interfaces accepting JSON RPC 2.0 JSON messages.
 
 ```javascript
-	var radiation = new Radiation( harcon, { websocket: { jsonrpcPath: '/SocketRPC' } } )
+var radiationConfig = { ..., { websocket: { jsonrpcPath: '/JSONSocket' } } )
 ```
 
-It will accept and send JSON-RPC JSON packets...
+Send packet to that interface:
+
+```javascript
+socketJsonrpcClient.send( JSON.stringify( { jsonrpc: '2.0', id: mID, division: 'King', method: 'Julie.wakeup', params: [ ] } ) )
+socketJsonrpcClient.on('message', function (data) {
+	data = JSON.parse( data )
+	if ( data.error )
+		console.error( new Error(data.error) )
+	if ( data.id === mID )
+		console.log( data.result )
+})
+```
 
 
 ## Emit message to websocket listeners
 
 You can send out / broadcast messages to connected listeners if your business entity calls the method _'shifted'_, which is a built-in service of harcon letting entities to inform the system about state changes.
-[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) uses this mechanism to send out those messages to the websocket listeners.
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) uses this mechanism to send out those messages to the websocket listeners if configured.
 
 ```javascript
-	this.shifted( { mood: 'happy' } )
+Katie = {
+	name: 'Katie',
+	context: 'morning',
+	doBusiness: async function ( ) {
+		await this.shifted( { mood: 'Pour toi, Marie' } )
+		return 'ok'
+	}
+}
 ```
 
-That will send the message 'mood' to the connected clients with the data _'happy'_.
-All properties of the object sent will be turned into separate messages to be broadcasted. And the payload of the messages will be set by the value of the given property.
+That will send the message 'mood' to the connected clients with the data _'Pour toi, Marie'_.
+All properties of the object passed to the function _'shifted'_ will be turned into separate messages to be broadcasted. The payload of each message will be set by the value of the given property.
 
-Note: Considering the nature of the JSON-RPC 2.0, this level of service is available only for the _'normal'_ websockets clients.
+Note: Considering the nature of the JSON-RPC 2.0, this level of service requires to implement message handling beyond the reach of the specification.
 
 
 ## Distinguish websocket clients
 
-By default, the function _'shifted'_ emits message to all listeners connected. Some business cases desire more focused approach, targeting a defined group of clients.
-During the _'ignite'_ message processing, [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to have a injected service which is performed when the results are about to send back to the caller.
+By default, the function _'shifted'_ emits message to all listeners connected. Some business cases desire a more focused approach, targeting a defined group of clients.
+[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) allows you to define 2 services to mark and select clients.
 
-THe configuration file might define the following attribute:
+THe configuration file might define the following function:
 
 ```javascript
 assignSocket: async function (event, terms, res, socket ) {
@@ -182,68 +206,33 @@ assignSocket: async function (event, terms, res, socket ) {
 }
 ```
 
-The function '_assignSocket_' is called as a final step of message processing. It requires a function as a return value answering the event just processed. By default, it is the same function doing nothing.
-You can extend this to inject your logic to mark sockets as below:
+The function _'assignSocket'_ is called as the final step of each message processing giving the opportunity to mark the current client socket is needed as the example below demonstrates:
 
 ```javascript
-assignSocket: function (event) {
-	return async function ( terms, name, socket ) {
-		if (event === 'Julie.login') {
-			socket.name = name[0]
-			socket.join( name[0] )
-			resolve( name )
-		}
-		else resolve( res )
-	}
+assignSocket: async function (event, terms, res, socket ) {
+	if (event === 'Julie.login')
+		socket.name = res
+	return 'ok'
 }
 ```
 
-This definition tells the [harcon-radiation](https://github.com/imrefazekas/harcon-radiation) to use another function for events _'Julie.login'_. If the login was successful, the name is associated to the socket connected.
+If a message _'Julie.login'_ has been processed successfully, the result of the service will be associated to the socket connected.
 
-Using sockets, you have 2 ways to walk on:
-- associate sockets to [rooms](http://socket.io/docs/rooms-and-namespaces/)
-- add custom attributes to socket instances
-
-You can use one of them or both, as you wish.
-
-Either way, you can identify clients easily by specifying selection expression in function _'shift'_ as below:
+What a state shift is changing and clients should be notified, the function _identifySockets_ will be called as follows:
 
 ```javascript
 this.shifted( { mood: 'Pour toi, Claire' }, 'Claire' )
+...
+identifySockets: async function ( sockets, target ) {
+	let filtered = []
+	for (let socket of sockets)
+		if ( target === '*' || socket.name === target || socket.name === target.name )
+			filtered.push( socket )
+	return filtered
+}
 ```
 
-This solution identifies the room _'Claire'_ targeting all sockets within.
-
-```javascript
-this.shifted( { mood: 'C\'est fini, Marie' }, {name: 'Marie'} )
-```
-
-This solution identifies all sockets possessing the given attributes and values.
-
-
-## Security
-
-[harcon-radiation](https://github.com/imrefazekas/harcon-radiation) is using [connect-rest](https://github.com/imrefazekas/connect-rest) inside and allows you to use the security features of that REST lib.
-Your components might possess a __protector__ function which should retrieve [protector function](https://github.com/imrefazekas/connect-rest#protector) used by the [connect-rest](https://github.com/imrefazekas/connect-rest) when it is called.
-The service parameter can be used to differentiate the different security aspects your services cover.
-
-```javascript
-harcon.deploy( {
-	name: 'julie',
-	rest: true,
-	security: {
-		protector: function(service){
-			return async function( req, res, pathname, path ){
-				throw new Error('Something is fishy')
-			}
-		}
-	}
-} )
-```
-
-About the protector functions, please find the description [here](https://github.com/imrefazekas/connect-rest#protector).
-
-Note: this feature is valid only for REST option 1.
+The function _identifySockets_ is called by the internal function _broadcast_ performed by thhe user-called function _shifted_. The role of the funtion _identifySockets_ is to filter out the clients to send the messages to. By default all connected websocket clients will be notified.
 
 
 ## Shield
@@ -283,7 +272,7 @@ Note: this feature is serving special purposes, use it with adequate caution.
 
 (The MIT License)
 
-Copyright (c) 2016 Imre Fazekas
+Copyright (c) 2018 Imre Fazekas
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
