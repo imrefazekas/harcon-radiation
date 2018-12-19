@@ -61,6 +61,10 @@ var radiationConfig = { ..., hideInnerServices: true, innerServicesFn: function(
 ```
 
 
+[OpenAPI spec](https://github.com/imrefazekas/harcon-radiation/blob/master/openapi.json)
+
+
+
 ## Call REST
 
 There are 3 ways to expose services through REST:
@@ -118,6 +122,9 @@ By sending the following JSON to the address, you can address the method _'termi
 ```javascript
 	{ division: 'King.charming', event: 'marie.terminus', params: ['Szióka!'] }
 ```
+
+[Harcon message JSON schema](https://github.com/imrefazekas/harcon-radiation/blob/master/harcon-message.schema.json)
+
 
 
 ## Websockets
