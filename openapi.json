@@ -1,0 +1,177 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "title" : "Harcon Radiation",
+    "description" : "This is the REST api of the server harcon-radiation generates\n",
+    "contact" : {
+      "email" : "imre.fazekas@icloud.com"
+    },
+    "license" : {
+      "name" : "MIT",
+      "url" : "https://opensource.org/licenses/MIT"
+    },
+    "version" : "9.0.0"
+  },
+  "externalDocs" : {
+    "description" : "JSON-RPC 2.0 specs",
+    "url" : "https://www.jsonrpc.org/specification"
+  },
+  "servers" : [ {
+    "url" : "/"
+  } ],
+  "tags" : [ {
+    "name" : "Rest",
+    "description" : "Pure Rest API"
+  }, {
+    "name" : "HarconRPC",
+    "description" : "Rest API accepting Harcon messages"
+  }, {
+    "name" : "JsonRPC",
+    "description" : "JSON-RPC 2.0 Rest API"
+  } ],
+  "paths" : {
+    "/{division}/{entity}/{event}" : {
+      "post" : {
+        "tags" : [ "Rest" ],
+        "summary" : "Calls an event within an entity assigned to a division",
+        "parameters" : [ {
+          "name" : "division",
+          "in" : "path",
+          "description" : "Qualified name of the division to be addressed",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "entity",
+          "in" : "path",
+          "description" : "Qualified name of the entity",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "name" : "event",
+          "in" : "path",
+          "description" : "Service name",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              },
+              "application/xml" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "failed operation"
+          },
+          "503" : {
+            "description" : "unknown operation"
+          }
+        }
+      }
+    },
+    "/{harconrpcPath}" : {
+      "post" : {
+        "tags" : [ "HarconRPC" ],
+        "summary" : "HarconRPC-based Rest endpoint",
+        "description" : "Accepts Harcon messages as JSON to call a service",
+        "parameters" : [ {
+          "name" : "harconrpcPath",
+          "in" : "path",
+          "description" : "The path specified in the configs",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              },
+              "application/xml" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "failed operation"
+          },
+          "503" : {
+            "description" : "unknown operation"
+          }
+        }
+      }
+    },
+    "/{jsonrpcPath}" : {
+      "post" : {
+        "tags" : [ "JsonRPC" ],
+        "summary" : "JSONRPC-based Rest endpoint",
+        "description" : "Accepts JSON-RPC 2.0 messages as JSON to call a service",
+        "parameters" : [ {
+          "name" : "jsonrpcPath",
+          "in" : "path",
+          "description" : "The path specified in the configs",
+          "required" : true,
+          "style" : "simple",
+          "explode" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              },
+              "application/xml" : {
+                "schema" : {
+                  "type" : "object"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "failed operation"
+          },
+          "503" : {
+            "description" : "unknown operation"
+          }
+        }
+      }
+    }
+  },
+  "components" : { }
+}

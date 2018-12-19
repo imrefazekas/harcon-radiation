@@ -222,6 +222,20 @@ describe('harcon-radiation', function () {
 				expect( result.body ).to.eql( '127.0.0.1' )
 			} catch (err) { assert.fail( err ) }
 		})
+		it('Error', async function () {
+			try {
+				let result = await post( 'http://localhost:8080/King.click/Claire/tampis', { params: [ 'Szióka!' ] } )
+				should.exist( result.body )
+				should.equal(result.response.statusCode, 500)
+			} catch (err) { assert.fail( err ) }
+		})
+		it('Error2', async function () {
+			try {
+				let result = await post( 'http://localhost:8080/Harcon', { division: 'King.click', event: 'Claire.tampis', params: [ 'Szióka!' ] } )
+				should.exist( result.body )
+				should.equal(result.response.statusCode, 500)
+			} catch (err) { assert.fail( err ) }
+		})
 		it('Harcon-RPC', async function () {
 			try {
 				let result = await post( 'http://localhost:8080/Harcon', { division: 'King.click', event: 'Claire.jolie', params: ['Szióka!'] } )
@@ -243,7 +257,7 @@ describe('harcon-radiation', function () {
 			await server.harcon.conclude( { name: 'Julie' } )
 			try {
 				let result = await post( 'http://localhost:8080/King/morning/wakeup', { params: ['Helloka!'] } )
-				expect( result.response.statusCode ).to.equal( 500 )
+				expect( result.response.statusCode ).to.equal( 503 )
 			} catch (err) { assert.fail( err ) }
 		})
 		it('Mimic-test', async function () {
