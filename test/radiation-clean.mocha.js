@@ -40,7 +40,7 @@ async function post ( uri, body ) {
 describe('harcon-radiation', function () {
 
 	before( async function () {
-		this.timeout(5000)
+		this.timeout(7000)
 
 		let harconPath = path.join( process.cwd(), 'node_modules', 'harcon', 'test' )
 		server = new Server( {
@@ -72,7 +72,7 @@ describe('harcon-radiation', function () {
 		try {
 			await server.init()
 
-			await Proback.timeout(1000)
+			await Proback.timeout(2000)
 
 			await server.harcon.inflicterEntity.deploy( null, 'peter', 'greet.*', async function (greetings1, greetings2) {
 				return 'Hi there!'
@@ -123,13 +123,13 @@ describe('harcon-radiation', function () {
 				if ( data.state )
 					console.log('MOOOOOOODD >>>>>>>>>>>>>> ', data)
 			})
-
 			await Proback.timeout(3000)
 		} catch (err) {
 			console.error( err )
 			assert.fail( err )
 		}
 	})
+
 	describe('System checks', function () {
 		it('URIs', async function () {
 			let uris = await server.radiation.entityURIs( )

@@ -60,7 +60,7 @@ module.exports = {
 
 			next()
 		}, {
-			fastify: '1.x',
+			fastify: '>=2.x',
 			name: 'fastify-ws'
 		})
 	}

@@ -25,16 +25,16 @@
   "dependencies": {
     "assign.js": "^2.8.7",
     "clerobee": "^0.9.8",
-    "fastify": "~1",
-    "fastify-compress": "^0.8.0",
-    "fastify-healthcheck": "^1.0.0",
+    "fastify": "~2",
+    "fastify-compress": "^0.8.1",
+    "fastify-healthcheck": "^2.0.0",
     "fastify-helmet": "^3.0.0",
-    "fastify-jwt": "^0.9.1",
-    "fastify-multipart": "^0.6.0",
+    "fastify-jwt": "^0.9.3",
+    "fastify-multipart": "^0.7.0",
     "fastify-plugin": "^1.5.0",
-    "fastify-rate-limit": "^1.0.0",
-    "fastify-static": "^1.1.0",
-    "fastify-ws": "^1.0.0",
+    "fastify-rate-limit": "^2.0.1",
+    "fastify-static": "^2.3.4",
+    "fastify-ws": "github:imrefazekas/fastify-ws",
     "harcon": "^9.1.0",
     "isa.js": "^2.2.10",
     "proback.js": "^2.1.8"
@@ -47,7 +47,7 @@
     "pino-pretty": "~2",
     "request": "^2.88.0",
     "watch": "^1.0.2",
-    "ws": "^6.1.3"
+    "ws": "^6.1.4"
   },
   "engines": {
     "node": ">= 8.0.0"
