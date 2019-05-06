@@ -1,6 +1,6 @@
 {
   "name": "harcon-radiation",
-  "version": "9.2.0",
+  "version": "9.2.1",
   "description": "REST and Websocket plugin for harcon",
   "keywords": [
     "REST",
@@ -26,13 +26,13 @@
     "assign.js": "^2.8.7",
     "clerobee": "^0.9.8",
     "fastify": "~2",
-    "fastify-compress": "^0.8.1",
+    "fastify-compress": "^0.9.0",
     "fastify-healthcheck": "^2.0.0",
     "fastify-helmet": "^3.0.0",
     "fastify-jwt": "^0.10.0",
-    "fastify-multipart": "^0.8.0",
+    "fastify-multipart": "^0.8.1",
     "fastify-plugin": "^1.5.0",
-    "fastify-rate-limit": "^2.1.0",
+    "fastify-rate-limit": "^2.1.1",
     "fastify-static": "^2.4.0",
     "fastify-ws": "^1.0.1",
     "harcon": "^9.2.3",
@@ -44,10 +44,10 @@
     "mkdirp": "^0.5.1",
     "path": "^0.12.7",
     "pino": "~5",
-    "pino-pretty": "~2",
+    "pino-pretty": "~3",
     "request": "^2.88.0",
     "watch": "^1.0.2",
-    "ws": "^6.2.1"
+    "ws": "^7.0.0"
   },
   "engines": {
     "node": ">= 8.0.0"
