@@ -43,10 +43,11 @@ module.exports = {
 					)
 					if (config.fastify.jwt)
 						fastify.register(require('fastify-jwt'), config.fastify.jwt )
-					fastify.register(require('fastify-static'), config.fastify.static || {
-						root: path.join( process.cwd(), 'dist'),
-						prefix: '/public/'
-					})
+					if (config.fastify.static)
+						fastify.register(require('fastify-static'), config.fastify.static || {
+							root: path.join( process.cwd(), 'dist'),
+							prefix: '/public/'
+						})
 					if (config.fastify.multipart)
 						fastify.register(require('fastify-multipart'), config.fastify.multipart )
 				},
