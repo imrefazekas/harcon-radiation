@@ -30,11 +30,6 @@ module.exports = {
 				caseSensitive: true,
 				defaultPlugins: function (fastify) {
 					fastify.register(require('fastify-healthcheck'))
-					fastify.register(require('fastify-rate-limit'), config.fastify.rate || {
-						max: 100,
-						timeWindow: '1 minute',
-						whitelist: [ '127.0.0.1' ]
-					})
 					fastify.register(
 						require('fastify-compress'), config.fastify.compress || { threshold: 2048 }
 					)
