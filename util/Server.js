@@ -22,8 +22,7 @@ function Server (config = {}) {
 
 	if ( self.config.server.active ) {
 		let fastifyConfig = assigner.assign( {
-			logger: true
-			// logger: self.logger
+			logger: self.logger || true
 		}, self.config.fastify )
 
 		fastify = require('fastify')( fastifyConfig )
