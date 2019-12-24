@@ -23,20 +23,20 @@
   "license": "MIT",
   "main": "./lib/harcon-radiation.js",
   "dependencies": {
-    "assign.js": "^2.8.8",
+    "assign.js": "^2.8.9",
     "clerobee": "^1.0.0",
     "fastify": "~2",
-    "fastify-compress": "^1.1.0",
+    "fastify-compress": "^2.0.0",
     "fastify-healthcheck": "^2.1.0",
     "fastify-helmet": "^3.0.2",
-    "fastify-jwt": "^1.2.0",
-    "fastify-multipart": "^1.0.2",
+    "fastify-jwt": "^1.2.1",
+    "fastify-multipart": "^1.0.3",
     "fastify-plugin": "^1.6.0",
     "fastify-static": "^2.5.1",
-    "harcon": "^9.2.22",
+    "harcon": "^9.2.23",
     "isa.js": "^2.2.10",
     "proback.js": "^2.1.8",
-    "ws": "^7.2.0"
+    "ws": "^7.2.1"
   },
   "devDependencies": {
     "chai": "^4.2.0",
