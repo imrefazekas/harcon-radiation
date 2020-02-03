@@ -43,8 +43,6 @@ module.exports = {
 							root: path.join( process.cwd(), 'dist'),
 							prefix: '/public/'
 						})
-					if (config.fastify.multipart)
-						fastify.register(require('fastify-multipart'), config.fastify.multipart )
 				},
 				plugins: function (fastify) {
 				},
