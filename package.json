@@ -32,7 +32,7 @@
     "fastify-jwt": "^1.2.1",
     "fastify-plugin": "^1.6.0",
     "fastify-static": "^2.6.0",
-    "harcon": "^9.2.25",
+    "harcon": "^9.2.26",
     "isa.js": "^2.2.12",
     "proback.js": "^2.1.10",
     "ws": "^7.2.1"
