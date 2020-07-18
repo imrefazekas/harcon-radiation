@@ -90,7 +90,7 @@ server.init = async function (callback) {
 		if (self.config.server.rest)
 			await self.radiation.rester( fastify )
 		if (self.config.server.ws)
-			await self.radiation.ws( fastify )
+			await self.radiation.ws( fastify, self.config.server.wsOptions || {} )
 	}
 
 	if ( self.config.server.active ) {

@@ -1,10 +1,13 @@
+const Assigner = require('assign.js')
+let assigner = new Assigner()
+
 const fp = require('fastify-plugin')
 const WebSocket = require('ws')
 
 const url = require('url')
 
 module.exports = {
-	addWSServer: function (paths) {
+	addWSServer: function (paths, wsOptions = {}) {
 		return fp((fastify, opts, next) => {
 			const lib = opts.library || 'ws'
 
@@ -12,7 +15,9 @@ module.exports = {
 
 			let wssServers = []
 			for (let path in paths)
-				wssServers[path] = new WebSocket.Server({ noServer: true })
+				wssServers[path] = new WebSocket.Server( assigner.assign( {}, wsOptions, {
+					noServer: true
+				}) )
 
 			fastify.server.on('upgrade', (request, socket, head) => {
 				const pathname = url.parse(request.url).pathname
